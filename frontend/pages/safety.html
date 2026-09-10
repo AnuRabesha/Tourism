@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Safety – TourEase</title>
+  <link rel="stylesheet" href="/static/frontend/css/style.css"/>
+</head>
+<body>
+
+<nav>
+  <a class="logo" href="/">🌍 TourEase</a>
+  <ul>
+    <li><a href="/">Home</a></li>
+    <li><a href="/pages/weather.html">Weather</a></li>
+    <li><a href="/pages/safety.html">Safety</a></li>
+    <li><a href="/pages/food.html">Food</a></li>
+    <li><a href="/pages/language.html">Language</a></li>
+    <li><a href="/pages/booking.html">Booking</a></li>
+  </ul>
+</nav>
+
+<div class="page-header">
+  <h1>🚨 Safety & Emergency</h1>
+  <p>Emergency contacts and real-time crowd alerts</p>
+</div>
+
+<div class="section">
+
+  <!-- Emergency Contacts -->
+  <h2 class="section-title">Emergency Contacts</h2>
+  <div class="contact-grid" id="contactGrid">
+    <div class="loader">Loading contacts...</div>
+  </div>
+
+  <!-- Crowd Alert -->
+  <h2 class="section-title" style="margin-top:2.5rem;" id="crowd">Crowd Alert</h2>
+  <div class="form-card" style="margin:0 0 1.5rem;">
+    <div class="form-group">
+      <label>Place Name</label>
+      <input type="text" id="placeInput" placeholder="e.g. marina beach, taj mahal"/>
+    </div>
+    <button class="btn btn-primary" onclick="checkCrowd()">Check Crowd Level</button>
+    <button class="btn btn-outline" style="margin-left:8px;" onclick="loadAllCrowds()">Show All</button>
+  </div>
+
+  <div id="crowdResult"></div>
+
+</div>
+
+<footer>© 2025 TourEase</footer>
+
+<script src="/static/frontend/js/api.js"></script>
+<script>
+  const ICONS = {
+    police: "👮", firefighter: "🚒", doctor: "🩺", women_alert: "👩"
+  };
+  const LABELS = {
+    police: "Police", firefighter: "Firefighter", doctor: "Doctor / Ambulance", women_alert: "Women Helpline"
+  };
+
+  async function loadContacts() {
+    const data = await api.get("/safety/emergency-contacts");
+    const grid = document.getElementById("contactGrid");
+    if (data.error) {
+      grid.innerHTML = `<div class="alert alert-error">${data.error}</div>`;
+      return;
+    }
+    grid.innerHTML = Object.entries(data).map(([key, val]) => `
+      <div class="contact-card">
+        <div class="icon">${ICONS[key] || "📞"}</div>
+        <h4>${LABELS[key] || key}</h4>
+        <p style="font-size:0.8rem; color:#888; margin-bottom:6px;">${val.description}</p>
+        <a href="tel:${val.number}">${val.number}</a>
+      </div>
+    `).join("");
+  }
+
+  async function checkCrowd() {
+    const place = document.getElementById("placeInput").value.trim();
+    const box = document.getElementById("crowdResult");
+    if (!place) { box.innerHTML = `<div class="alert alert-error">Enter a place name.</div>`; return; }
+
+    const data = await api.get(`/safety/crowd-alert?place=${encodeURIComponent(place)}`);
+    if (data.error) {
+      const available = (data.available || []).join(", ");
+      box.innerHTML = `<div class="alert alert-error">${data.error}${available ? ". Available: " + available : ""}</div>`;
+      return;
+    }
+    box.innerHTML = renderCrowdCard(data);
+  }
+
+  async function loadAllCrowds() {
+    const data = await api.get("/safety/crowd-alert");
+    const box = document.getElementById("crowdResult");
+    if (data.error) { box.innerHTML = `<div class="alert alert-error">${data.error}</div>`; return; }
+    box.innerHTML = `<div class="cards-grid">${Object.entries(data).map(([place, info]) =>
+      renderCrowdCard({ place, ...info })
+    ).join("")}</div>`;
+  }
+
+  function renderCrowdCard(d) {
+    const badgeClass = { high: "badge-high", medium: "badge-medium", low: "badge-low" }[d.level] || "badge-low";
+    return `
+      <div class="result-box" style="margin-bottom:1rem;">
+        <h3 style="text-transform:capitalize;">${d.place.replace(/_/g, " ")}</h3>
+        <p style="margin:8px 0;">Crowd Level: <span class="badge ${badgeClass}">${d.level.toUpperCase()}</span></p>
+        <p style="color:#555;">${d.advice}</p>
+      </div>`;
+  }
+
+  loadContacts();
+</script>
+</body>
+</html>

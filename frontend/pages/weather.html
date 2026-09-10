@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Weather – TourEase</title>
+  <link rel="stylesheet" href="/static/frontend/css/style.css"/>
+</head>
+<body>
+
+<nav>
+  <a class="logo" href="/">🌍 TourEase</a>
+  <ul>
+    <li><a href="/">Home</a></li>
+    <li><a href="/pages/weather.html">Weather</a></li>
+    <li><a href="/pages/safety.html">Safety</a></li>
+    <li><a href="/pages/food.html">Food</a></li>
+    <li><a href="/pages/language.html">Language</a></li>
+    <li><a href="/pages/booking.html">Booking</a></li>
+  </ul>
+</nav>
+
+<div class="page-header">
+  <h1>🌦️ Weather</h1>
+  <p>Check current weather and 5-day forecast for any city</p>
+</div>
+
+<div class="section">
+
+  <!-- Search Form -->
+  <div class="form-card">
+    <div class="form-group">
+      <label>City Name</label>
+      <input type="text" id="cityInput" placeholder="e.g. Chennai, Mumbai, Delhi"/>
+    </div>
+    <button class="btn btn-primary" onclick="getWeather()">Get Weather</button>
+  </div>
+
+  <div id="alertBox"></div>
+
+  <!-- Current Weather -->
+  <div class="result-box" id="currentWeather" style="display:none;">
+    <h3>Current Weather</h3>
+    <div class="weather-widget">
+      <div class="weather-temp" id="temp"></div>
+      <div class="weather-info">
+        <p id="description" style="font-size:1.1rem; font-weight:600; color:#333;"></p>
+        <p id="humidity"></p>
+        <p id="wind"></p>
+        <p id="feelsLike"></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Forecast -->
+  <div class="result-box" id="forecastBox" style="display:none; margin-top:1.5rem;">
+    <h3>5-Day Forecast</h3>
+    <div class="cards-grid" id="forecastGrid"></div>
+  </div>
+
+</div>
+
+<footer>© 2025 TourEase</footer>
+
+<script src="/static/frontend/js/api.js"></script>
+<script>
+  async function getWeather() {
+    const city = document.getElementById("cityInput").value.trim();
+    const alertBox = document.getElementById("alertBox");
+    alertBox.innerHTML = "";
+
+    if (!city) {
+      alertBox.innerHTML = `<div class="alert alert-error">Please enter a city name.</div>`;
+      return;
+    }
+
+    alertBox.innerHTML = `<div class="alert alert-info">Fetching weather for <b>${city}</b>...</div>`;
+
+    const [current, forecast] = await Promise.all([
+      api.get(`/weather/current?city=${encodeURIComponent(city)}`),
+      api.get(`/weather/forecast?city=${encodeURIComponent(city)}`),
+    ]);
+
+    // Handle connection error from api.js wrapper
+    if (current.error) {
+      alertBox.innerHTML = `<div class="alert alert-error">${current.error}</div>`;
+      return;
+    }
+
+    // OpenWeatherMap returns cod as number 200 or string "200"
+    if (String(current.cod) !== "200") {
+      alertBox.innerHTML = `<div class="alert alert-error">${current.message || "City not found."}</div>`;
+      return;
+    }
+
+    // Forecast may fail independently — guard before accessing .list
+    if (forecast.error || String(forecast.cod) !== "200") {
+      alertBox.innerHTML = `<div class="alert alert-error">Forecast unavailable: ${forecast.message || forecast.error || "Unknown error"}</div>`;
+      return;
+    }
+
+    alertBox.innerHTML = "";
+
+    // Current
+    document.getElementById("temp").textContent = `${Math.round(current.main.temp)}°C`;
+    document.getElementById("description").textContent =
+      current.weather[0].description.charAt(0).toUpperCase() + current.weather[0].description.slice(1);
+    document.getElementById("humidity").textContent = `💧 Humidity: ${current.main.humidity}%`;
+    document.getElementById("wind").textContent = `💨 Wind: ${current.wind.speed} m/s`;
+    document.getElementById("feelsLike").textContent = `🌡️ Feels like: ${Math.round(current.main.feels_like)}°C`;
+    document.getElementById("currentWeather").style.display = "block";
+
+    // Forecast — pick one entry per day (every 8th = 24h apart)
+    const daily = forecast.list.filter((_, i) => i % 8 === 0).slice(0, 5);
+    const grid = document.getElementById("forecastGrid");
+    grid.innerHTML = daily.map((d) => {
+      const date = new Date(d.dt * 1000).toLocaleDateString("en-IN", { weekday: "short", month: "short", day: "numeric" });
+      return `
+        <div class="card">
+          <div class="icon">🌤️</div>
+          <h3>${Math.round(d.main.temp)}°C</h3>
+          <p>${date}</p>
+          <p style="font-size:0.8rem; color:#888;">${d.weather[0].description}</p>
+        </div>`;
+    }).join("");
+    document.getElementById("forecastBox").style.display = "block";
+  }
+</script>
+</body>
+</html>

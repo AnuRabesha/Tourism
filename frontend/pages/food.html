@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Food – TourEase</title>
+  <link rel="stylesheet" href="/static/frontend/css/style.css"/>
+</head>
+<body>
+
+<nav>
+  <a class="logo" href="/">🌍 TourEase</a>
+  <ul>
+    <li><a href="/">Home</a></li>
+    <li><a href="/pages/weather.html">Weather</a></li>
+    <li><a href="/pages/safety.html">Safety</a></li>
+    <li><a href="/pages/food.html">Food</a></li>
+    <li><a href="/pages/language.html">Language</a></li>
+    <li><a href="/pages/booking.html">Booking</a></li>
+  </ul>
+</nav>
+
+<div class="page-header">
+  <h1>🍲 Food Guide</h1>
+  <p>Discover free temple food and famous local dishes across India</p>
+</div>
+
+<div class="section">
+
+  <!-- Tabs -->
+  <div style="display:flex; gap:1rem; margin-bottom:1.5rem;">
+    <button class="btn btn-primary" onclick="showTab('temple')">🛕 Temple Food</button>
+    <button class="btn btn-outline" onclick="showTab('dishes')">🍛 Famous Dishes</button>
+  </div>
+
+  <!-- Temple Food -->
+  <div id="templeTab">
+    <div class="form-card" style="margin:0 0 1.5rem;">
+      <div class="form-group">
+        <label>Filter by State (optional)</label>
+        <input type="text" id="templeState" placeholder="e.g. TN, Punjab"/>
+      </div>
+      <button class="btn btn-primary" onclick="loadTemples()">Search</button>
+    </div>
+    <div id="templeList" class="cards-grid"></div>
+  </div>
+
+  <!-- Famous Dishes -->
+  <div id="dishesTab" style="display:none;">
+    <div class="form-card" style="margin:0 0 1.5rem;">
+      <div class="form-group">
+        <label>Select State</label>
+        <select id="stateSelect">
+          <option value="">-- All States --</option>
+          <option>Tamil Nadu</option>
+          <option>Kerala</option>
+          <option>Punjab</option>
+          <option>Rajasthan</option>
+          <option>West Bengal</option>
+          <option>Maharashtra</option>
+        </select>
+      </div>
+      <button class="btn btn-primary" onclick="loadDishes()">Get Dishes</button>
+    </div>
+    <div id="dishesList"></div>
+  </div>
+
+</div>
+
+<footer>© 2025 TourEase</footer>
+
+<script src="/static/frontend/js/api.js"></script>
+<script>
+  function showTab(tab) {
+    document.getElementById("templeTab").style.display = tab === "temple" ? "block" : "none";
+    document.getElementById("dishesTab").style.display = tab === "dishes" ? "block" : "none";
+  }
+
+  async function loadTemples() {
+    const state = document.getElementById("templeState").value.trim();
+    const url = state ? `/food/temple-food?state=${encodeURIComponent(state)}` : "/food/temple-food";
+    const data = await api.get(url);
+    const list = document.getElementById("templeList");
+    // Guard: api error or non-array response
+    if (data.error || !Array.isArray(data)) {
+      list.innerHTML = `<div class="alert alert-error">${data.error || "Failed to load temple data."}</div>`;
+      return;
+    }
+    if (!data.length) { list.innerHTML = `<div class="alert alert-info">No temples found.</div>`; return; }
+    list.innerHTML = data.map(t => `
+      <div class="card">
+        <div class="icon">🛕</div>
+        <h3>${t.name}</h3>
+        <p>${t.location}</p>
+        <p style="margin-top:6px; font-size:0.8rem; color:#888;">⏰ ${t.timings}</p>
+        <span class="badge badge-low" style="margin-top:8px;">FREE</span>
+      </div>
+    `).join("");
+  }
+
+  async function loadDishes() {
+    const state = document.getElementById("stateSelect").value;
+    const url = state ? `/food/famous-dishes?state=${encodeURIComponent(state)}` : "/food/famous-dishes";
+    const data = await api.get(url);
+    const list = document.getElementById("dishesList");
+
+    if (data.error) {
+      list.innerHTML = `<div class="alert alert-error">${data.error}</div>`;
+      return;
+    }
+
+    if (state && data.dishes) {
+      list.innerHTML = `
+        <div class="result-box">
+          <h3>🍛 ${data.state}</h3>
+          <div class="cards-grid" style="margin-top:1rem;">
+            ${data.dishes.map(d => `<div class="card"><div class="icon">🍽️</div><h3>${d}</h3></div>`).join("")}
+          </div>
+        </div>`;
+    } else {
+      list.innerHTML = Object.entries(data).map(([s, dishes]) => `
+        <div class="result-box" style="margin-bottom:1rem;">
+          <h3>📍 ${s}</h3>
+          <div style="display:flex; flex-wrap:wrap; gap:8px; margin-top:10px;">
+            ${dishes.map(d => `<span class="badge badge-medium">${d}</span>`).join("")}
+          </div>
+        </div>`).join("");
+    }
+  }
+
+  loadTemples();
+</script>
+</body>
+</html>
