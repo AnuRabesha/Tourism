@@ -30,3 +30,11 @@ test_app.py
 .idea/
 *.suo
 *.user
+
+# Mobile
+mobile/TourEase/node_modules/
+mobile/TourEase/.expo/
+
+# OS
+Thumbs.db
+.DS_Store
