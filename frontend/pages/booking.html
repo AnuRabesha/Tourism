@@ -17,6 +17,8 @@
     <li><a href="/pages/food.html">Food</a></li>
     <li><a href="/pages/language.html">Language</a></li>
     <li><a href="/pages/booking.html">Booking</a></li>
+    <li><a href="#" id="navUser" style="color:#fff; font-weight:700;"></a></li>
+    <li><a href="#" onclick="logout()" style="background:rgba(255,255,255,0.15); border-radius:20px;">Logout</a></li>
   </ul>
 </nav>
 
@@ -115,6 +117,9 @@
 
 <script src="/static/frontend/js/api.js"></script>
 <script>
+  if (!sessionStorage.getItem("tourease_user")) { window.location.href = "/login"; }
+  else { const u = JSON.parse(sessionStorage.getItem("tourease_user")); const el = document.getElementById("navUser"); if(el) el.textContent = "👤 " + (u.name||u.email); }
+  function logout() { sessionStorage.removeItem("tourease_user"); window.location.href = "/login"; }
   function showTab(tab) {
     ["hotels","transport","prebook","mybookings"].forEach(t => {
       document.getElementById(t + "Tab").style.display = t === tab ? "block" : "none";

@@ -10,6 +10,7 @@ from .routes.safety import safety_bp
 from .routes.language import language_bp
 from .routes.food import food_bp
 from .routes.booking import booking_bp
+from .routes.auth import auth_bp
 
 load_dotenv()
 
@@ -28,11 +29,17 @@ def create_app():
     app.register_blueprint(language_bp,  url_prefix="/api/language")
     app.register_blueprint(food_bp,      url_prefix="/api/food")
     app.register_blueprint(booking_bp,   url_prefix="/api/booking")
+    app.register_blueprint(auth_bp,      url_prefix="/api/auth")
 
     # ── Health check ────────────────────────────────────────────
     @app.route("/api/health")
     def health():
         return jsonify({"status": "ok", "app": "Tourism Support API"})
+
+    # ── Serve login page ─────────────────────────────────────────
+    @app.route("/login")
+    def serve_login():
+        return send_from_directory(os.path.join(FRONTEND_DIR, "pages"), "login.html")
 
     # ── Serve frontend static assets (css, js, images) ─────────
     @app.route("/static/frontend/<path:filename>")

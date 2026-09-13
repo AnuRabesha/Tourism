@@ -17,6 +17,8 @@
     <li><a href="/pages/food.html">Food</a></li>
     <li><a href="/pages/language.html">Language</a></li>
     <li><a href="/pages/booking.html">Booking</a></li>
+    <li><a href="#" id="navUser" style="color:#fff; font-weight:700;"></a></li>
+    <li><a href="#" onclick="logout()" style="background:rgba(255,255,255,0.15); border-radius:20px;">Logout</a></li>
   </ul>
 </nav>
 
@@ -79,5 +81,20 @@
 <footer>© 2025 TourEase. Built for smart travellers.</footer>
 
 <script src="/static/frontend/js/api.js"></script>
+<script>
+  // Auth guard — redirect to login if not logged in
+  const _user = sessionStorage.getItem("tourease_user");
+  if (!_user) { window.location.href = "/login"; }
+  else {
+    const u = JSON.parse(_user);
+    const navUser = document.getElementById("navUser");
+    if (navUser) navUser.textContent = "👤 " + (u.name || u.email);
+  }
+
+  function logout() {
+    sessionStorage.removeItem("tourease_user");
+    window.location.href = "/login";
+  }
+</script>
 </body>
 </html>
