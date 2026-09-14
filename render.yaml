@@ -3,7 +3,7 @@ services:
     name: tourease
     runtime: python
     buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn wsgi:app
+    startCommand: gunicorn wsgi:app --workers 2 --timeout 120
     envVars:
       - key: WEATHER_API_KEY
         sync: false
@@ -11,3 +11,5 @@ services:
         sync: false
       - key: PYTHON_VERSION
         value: 3.12.0
+      - key: FLASK_ENV
+        value: production

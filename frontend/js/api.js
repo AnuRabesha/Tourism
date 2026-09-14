@@ -1,4 +1,3 @@
-// Relative URL — works because Flask serves both frontend and API from the same server
 const BASE_URL = "/api";
 
 const api = {
@@ -9,7 +8,7 @@ const api = {
       return res.json();
     } catch (e) {
       console.error("GET error:", path, e);
-      return { error: "Could not connect to server. Make sure the backend is running on port 5000." };
+      return { error: "Could not connect to server." };
     }
   },
   post: async (path, body) => {
@@ -23,15 +22,13 @@ const api = {
       return res.json();
     } catch (e) {
       console.error("POST error:", path, e);
-      return { error: "Could not connect to server. Make sure the backend is running on port 5000." };
+      return { error: "Could not connect to server." };
     }
   },
 };
 
-// Highlight active nav link
 document.addEventListener("DOMContentLoaded", () => {
-  const links = document.querySelectorAll("nav ul a");
-  links.forEach((link) => {
+  document.querySelectorAll("nav ul a").forEach((link) => {
     if (link.href === location.href) link.classList.add("active");
   });
 });

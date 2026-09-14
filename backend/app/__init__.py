@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, send_from_directory
+from flask import Flask, jsonify, send_from_directory, abort
 from flask_cors import CORS
 from dotenv import load_dotenv
 import traceback
@@ -55,12 +55,14 @@ def create_app():
     @app.route("/", defaults={"path": ""})
     @app.route("/<path:path>")
     def serve_frontend(path):
-        # API routes are handled above — only catch frontend paths here
-        target = os.path.join(FRONTEND_DIR, path)
-        if path and os.path.isfile(target):
-            directory = os.path.dirname(target)
-            filename = os.path.basename(target)
-            return send_from_directory(directory, filename)
+        if path:
+            # Prevent path traversal — resolve and verify within FRONTEND_DIR
+            frontend_abs = os.path.realpath(FRONTEND_DIR)
+            target = os.path.realpath(os.path.join(FRONTEND_DIR, path))
+            if not target.startswith(frontend_abs + os.sep) and target != frontend_abs:
+                abort(404)
+            if os.path.isfile(target):
+                return send_from_directory(os.path.dirname(target), os.path.basename(target))
         return send_from_directory(FRONTEND_DIR, "index.html")
 
     # ── Global error handlers ────────────────────────────────────

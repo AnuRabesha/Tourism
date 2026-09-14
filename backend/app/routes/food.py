@@ -12,8 +12,12 @@ TEMPLE_FOOD = [
         "location": "Palani, Dindigul, Tamil Nadu",
         "religion": "Hindu",
         "timings": "6 AM – 8 PM",
-        "free": True,
-        "verified": True,
+        "food_timings": [
+            {"meal": "Breakfast", "time": "7:00 AM – 9:00 AM", "items": "Pongal, Idli, Sambar"},
+            {"meal": "Lunch", "time": "12:00 PM – 2:00 PM", "items": "Rice, Sambar, Rasam, Kootu, Payasam"},
+            {"meal": "Dinner", "time": "7:00 PM – 8:00 PM", "items": "Rice, Sambar, Pickle"}
+        ],
+        "free": True, "verified": True,
         "notes": "HR&CE verified Annadhanam daily"
     },
     {
@@ -22,8 +26,12 @@ TEMPLE_FOOD = [
         "location": "Tiruvannamalai, Tamil Nadu",
         "religion": "Hindu",
         "timings": "6 AM – 8 PM",
-        "free": True,
-        "verified": True,
+        "food_timings": [
+            {"meal": "Breakfast", "time": "7:30 AM – 9:30 AM", "items": "Idli, Vada, Chutney, Sambar"},
+            {"meal": "Lunch", "time": "11:30 AM – 1:30 PM", "items": "Full Meals – Rice, Sambar, Rasam, Curd, Papad"},
+            {"meal": "Dinner", "time": "7:00 PM – 8:00 PM", "items": "Chapati, Dal, Rice"}
+        ],
+        "free": True, "verified": True,
         "notes": "HR&CE verified Annadhanam daily"
     },
     {
@@ -32,8 +40,12 @@ TEMPLE_FOOD = [
         "location": "Sri Puram, Vellore, Tamil Nadu",
         "religion": "Hindu",
         "timings": "All day",
-        "free": True,
-        "verified": True,
+        "food_timings": [
+            {"meal": "Breakfast", "time": "8:00 AM – 10:00 AM", "items": "Idli, Pongal, Sambar"},
+            {"meal": "Lunch", "time": "12:00 PM – 3:00 PM", "items": "Full South Indian Meals"},
+            {"meal": "Dinner", "time": "6:30 PM – 8:30 PM", "items": "Rice, Sambar, Rasam"}
+        ],
+        "free": True, "verified": True,
         "notes": "Free meals served all day at Annakshetra"
     },
     {
@@ -42,8 +54,12 @@ TEMPLE_FOOD = [
         "location": "Sri Puram, Vellore, Tamil Nadu",
         "religion": "Hindu",
         "timings": "All day",
-        "free": True,
-        "verified": True,
+        "food_timings": [
+            {"meal": "Breakfast", "time": "8:00 AM – 10:00 AM", "items": "Pongal, Idli, Chutney"},
+            {"meal": "Lunch", "time": "12:00 PM – 2:00 PM", "items": "Full Meals with Payasam"},
+            {"meal": "Dinner", "time": "7:00 PM – 8:30 PM", "items": "Rice, Dal, Pickle"}
+        ],
+        "free": True, "verified": True,
         "notes": "Community meals available daily"
     },
     {
@@ -52,8 +68,12 @@ TEMPLE_FOOD = [
         "location": "Tiruchendur, Thoothukudi, Tamil Nadu",
         "religion": "Hindu",
         "timings": "6 AM – 8 PM",
-        "free": True,
-        "verified": True,
+        "food_timings": [
+            {"meal": "Breakfast", "time": "7:00 AM – 9:00 AM", "items": "Idli, Sambar, Chutney"},
+            {"meal": "Lunch", "time": "12:00 PM – 1:30 PM", "items": "Rice, Sambar, Rasam, Kootu"},
+            {"meal": "Dinner", "time": "7:00 PM – 8:00 PM", "items": "Rice, Sambar"}
+        ],
+        "free": True, "verified": True,
         "notes": "HR&CE verified Annadhanam"
     },
     {
@@ -62,8 +82,12 @@ TEMPLE_FOOD = [
         "location": "Srirangam, Tiruchirappalli, Tamil Nadu",
         "religion": "Hindu",
         "timings": "6 AM – 8 PM",
-        "free": True,
-        "verified": True,
+        "food_timings": [
+            {"meal": "Breakfast", "time": "7:00 AM – 9:00 AM", "items": "Pongal, Vada, Sambar"},
+            {"meal": "Lunch", "time": "11:00 AM – 1:00 PM", "items": "Grand Annadhanam – Full Meals, Payasam"},
+            {"meal": "Dinner", "time": "6:30 PM – 8:00 PM", "items": "Rice, Sambar, Rasam"}
+        ],
+        "free": True, "verified": True,
         "notes": "One of the largest temple Annadhanams in TN"
     },
     {
@@ -72,8 +96,12 @@ TEMPLE_FOOD = [
         "location": "Rameswaram, Ramanathapuram, Tamil Nadu",
         "religion": "Hindu",
         "timings": "6 AM – 8 PM",
-        "free": True,
-        "verified": True,
+        "food_timings": [
+            {"meal": "Breakfast", "time": "7:30 AM – 9:30 AM", "items": "Idli, Pongal, Sambar"},
+            {"meal": "Lunch", "time": "12:00 PM – 2:00 PM", "items": "Full Meals – Rice, Sambar, Rasam, Curd"},
+            {"meal": "Dinner", "time": "7:00 PM – 8:00 PM", "items": "Rice, Dal, Pickle"}
+        ],
+        "free": True, "verified": True,
         "notes": "HR&CE verified Annadhanam daily"
     },
     {
@@ -82,8 +110,12 @@ TEMPLE_FOOD = [
         "location": "Samayapuram, Tiruchirappalli, Tamil Nadu",
         "religion": "Hindu",
         "timings": "6 AM – 8 PM",
-        "free": True,
-        "verified": True,
+        "food_timings": [
+            {"meal": "Breakfast", "time": "7:00 AM – 9:00 AM", "items": "Pongal, Idli, Chutney"},
+            {"meal": "Lunch", "time": "12:00 PM – 1:30 PM", "items": "Rice, Sambar, Kootu, Rasam"},
+            {"meal": "Dinner", "time": "7:00 PM – 8:00 PM", "items": "Rice, Sambar"}
+        ],
+        "free": True, "verified": True,
         "notes": "HR&CE verified Annadhanam"
     },
     {
@@ -92,8 +124,12 @@ TEMPLE_FOOD = [
         "location": "Tiruttani, Tiruvallur, Tamil Nadu",
         "religion": "Hindu",
         "timings": "6 AM – 8 PM",
-        "free": True,
-        "verified": True,
+        "food_timings": [
+            {"meal": "Breakfast", "time": "7:00 AM – 9:00 AM", "items": "Idli, Vada, Sambar"},
+            {"meal": "Lunch", "time": "12:00 PM – 2:00 PM", "items": "Full Meals – Rice, Sambar, Rasam, Payasam"},
+            {"meal": "Dinner", "time": "7:00 PM – 8:00 PM", "items": "Rice, Sambar, Pickle"}
+        ],
+        "free": True, "verified": True,
         "notes": "HR&CE verified Annadhanam daily"
     },
 
@@ -230,6 +266,30 @@ FAMOUS_DISHES = {
     "West Bengal":["Rosogolla", "Macher Jhol", "Mishti Doi"],
     "Maharashtra":["Vada Pav", "Puran Poli", "Misal Pav"],
 }
+
+
+INSTANT_FOODS = {
+    "Chennai": ["Idli", "Dosa", "Pongal", "Vada", "Filter Coffee", "Bajji", "Sundal"],
+    "Madurai": ["Parotta", "Biryani", "Jigarthanda", "Kari Dosa", "Samosa"],
+    "Coimbatore": ["Kothu Parotta", "Salna", "Upma", "Rava Dosa", "Tea"],
+    "Tiruvannamalai": ["Pongal", "Idli Sambar", "Vada", "Payasam", "Buttermilk"],
+    "Rameswaram": ["Fish Fry", "Prawn Masala", "Idli", "Coconut Water", "Sundal"],
+    "Ooty": ["Varkey", "Homemade Chocolate", "Carrot Halwa", "Tea", "Bread Omelette"],
+    "Alleppey": ["Appam", "Fish Curry", "Puttu", "Coconut Water", "Kerala Meals"],
+    "Jaisalmer": ["Dal Baati", "Churma", "Lassi", "Rajasthani Thali", "Chai"],
+}
+
+
+@food_bp.route("/instant-foods", methods=["GET"])
+def instant_foods():
+    """Get instant foods available by city."""
+    city = request.args.get("city", "").strip()
+    if city:
+        key = next((k for k in INSTANT_FOODS if k.lower() == city.lower()), None)
+        if not key:
+            return jsonify({"error": "City not found", "available_cities": list(INSTANT_FOODS.keys())}), 404
+        return jsonify({"city": key, "instant_foods": INSTANT_FOODS[key]})
+    return jsonify(INSTANT_FOODS)
 
 
 @food_bp.route("/temple-food", methods=["GET"])

@@ -5,9 +5,307 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>TourEase – Smart Tourism App</title>
   <link rel="stylesheet" href="/static/frontend/css/style.css"/>
+  <style>
+    /* ── HERO ── */
+    .hero-new {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #0f0c29 0%, #302b63 40%, #24243e 70%, #7c3aed 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 100px 2rem 60px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-new::before {
+      content: "";
+      position: absolute;
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(124,58,237,0.4), transparent 70%);
+      top: -150px; left: -150px;
+      animation: floatBlob 8s ease-in-out infinite;
+    }
+    .hero-new::after {
+      content: "";
+      position: absolute;
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, rgba(245,158,11,0.3), transparent 70%);
+      bottom: -100px; right: -100px;
+      animation: floatBlob 10s ease-in-out infinite reverse;
+    }
+    .blob3 {
+      position: absolute;
+      width: 400px; height: 400px;
+      background: radial-gradient(circle, rgba(0,212,255,0.2), transparent 70%);
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      animation: floatBlob 12s ease-in-out infinite;
+    }
+    @keyframes floatBlob {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      50% { transform: translate(30px, -30px) scale(1.1); }
+    }
+    .hero-badge {
+      display: inline-block;
+      background: rgba(99,102,241,0.25);
+      border: 1px solid rgba(99,102,241,0.5);
+      color: #a5b4fc;
+      padding: 6px 18px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+      position: relative;
+      z-index: 1;
+      letter-spacing: 1px;
+    }
+    .hero-new h1 {
+      font-size: 3.8rem;
+      font-weight: 900;
+      color: #fff;
+      line-height: 1.15;
+      margin-bottom: 1.2rem;
+      position: relative;
+      z-index: 1;
+    }
+    .hero-new h1 span {
+      background: linear-gradient(90deg, #a78bfa, #f472b6, #fbbf24);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero-new p {
+      font-size: 1.2rem;
+      color: rgba(255,255,255,0.75);
+      max-width: 580px;
+      margin: 0 auto 2.5rem;
+      position: relative;
+      z-index: 1;
+      line-height: 1.7;
+    }
+    .hero-btns {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      position: relative;
+      z-index: 1;
+    }
+    .btn-hero-primary {
+      background: linear-gradient(135deg, #7c3aed, #db2777, #f59e0b);
+      color: #fff;
+      padding: 14px 32px;
+      border-radius: 30px;
+      font-size: 1rem;
+      font-weight: 700;
+      text-decoration: none;
+      box-shadow: 0 8px 25px rgba(124,58,237,0.55);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .btn-hero-primary:hover { transform: translateY(-3px); box-shadow: 0 12px 30px rgba(124,58,237,0.75); }
+    .btn-hero-outline {
+      background: rgba(255,255,255,0.1);
+      border: 2px solid rgba(255,255,255,0.3);
+      color: #fff;
+      padding: 14px 32px;
+      border-radius: 30px;
+      font-size: 1rem;
+      font-weight: 700;
+      text-decoration: none;
+      backdrop-filter: blur(10px);
+      transition: transform 0.2s, background 0.2s;
+    }
+    .btn-hero-outline:hover { transform: translateY(-3px); background: rgba(255,255,255,0.2); }
+
+    /* ── SCROLL INDICATOR ── */
+    .scroll-down {
+      position: absolute;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 1;
+      animation: bounce 2s infinite;
+      color: rgba(255,255,255,0.5);
+      font-size: 1.5rem;
+    }
+    @keyframes bounce {
+      0%, 100% { transform: translateX(-50%) translateY(0); }
+      50% { transform: translateX(-50%) translateY(10px); }
+    }
+
+    /* ── SERVICES ── */
+    .services-section {
+      padding: 5rem 2rem;
+      background: linear-gradient(180deg, #f5f0ff 0%, #fce7f3 50%, #e0f2fe 100%);
+      text-align: center;
+    }
+    .section-label {
+      display: inline-block;
+      background: linear-gradient(135deg, #7c3aed, #db2777);
+      color: #fff;
+      padding: 5px 16px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      margin-bottom: 1rem;
+    }
+    .services-section h2 {
+      font-size: 2.4rem;
+      font-weight: 800;
+      color: #2e1065;
+      margin-bottom: 0.6rem;
+    }
+    .services-section > p {
+      color: #6b7280;
+      font-size: 1.05rem;
+      margin-bottom: 3rem;
+    }
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .service-card {
+      background: #fff;
+      border-radius: 20px;
+      padding: 2rem 1.5rem;
+      text-align: left;
+      text-decoration: none;
+      color: #1a0533;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+      border: 1px solid rgba(0,0,0,0.06);
+      transition: transform 0.25s, box-shadow 0.25s;
+      position: relative;
+      overflow: hidden;
+    }
+    .service-card::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 4px;
+      background: var(--card-color, linear-gradient(90deg, #6366f1, #8b5cf6));
+    }
+    .service-card:hover { transform: translateY(-6px); box-shadow: 0 16px 40px rgba(0,0,0,0.12); }
+    .service-icon {
+      width: 56px; height: 56px;
+      border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.8rem;
+      margin-bottom: 1.2rem;
+    }
+    .service-card h3 { font-size: 1.15rem; font-weight: 700; margin-bottom: 0.5rem; }
+    .service-card p { font-size: 0.88rem; color: #6b7280; line-height: 1.6; }
+    .service-arrow {
+      display: inline-block;
+      margin-top: 1rem;
+      font-size: 0.85rem;
+      font-weight: 700;
+      background: linear-gradient(90deg, #7c3aed, #db2777);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* ── STATS ── */
+    .stats-section {
+      background: linear-gradient(135deg, #0f0c29, #4f46e5, #7c3aed, #db2777);
+      padding: 4rem 2rem;
+      text-align: center;
+    }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 2rem;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .stat-item { color: #fff; }
+    .stat-number {
+      font-size: 3rem;
+      font-weight: 900;
+      background: linear-gradient(90deg, #fbbf24, #f472b6, #a78bfa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .stat-label { font-size: 0.95rem; color: rgba(255,255,255,0.65); margin-top: 4px; }
+
+    /* ── FEATURES ── */
+    .features-section {
+      padding: 5rem 2rem;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .features-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+      align-items: center;
+    }
+    .features-text h2 { font-size: 2.2rem; font-weight: 800; color: #1a0533; margin-bottom: 1rem; }
+    .features-text p { color: #6b7280; line-height: 1.8; margin-bottom: 1.5rem; }
+    .feature-list { list-style: none; }
+    .feature-list li {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 0;
+      border-bottom: 1px solid #f3f4f6;
+      font-size: 0.95rem; color: #374151;
+    }
+    .feature-list li span { font-size: 1.2rem; }
+    .features-visual {
+      background: linear-gradient(135deg, #2e1065, #4f46e5, #7c3aed, #0ea5e9);
+      border-radius: 24px;
+      padding: 2.5rem;
+      color: #fff;
+      box-shadow: 0 20px 60px rgba(0,150,255,0.35);
+    }
+    .features-visual h3 { font-size: 1.4rem; font-weight: 700; margin-bottom: 1.5rem; }
+    .mini-card {
+      background: rgba(255,255,255,0.15);
+      border-radius: 12px;
+      padding: 12px 16px;
+      margin-bottom: 10px;
+      display: flex; align-items: center; gap: 12px;
+      backdrop-filter: blur(10px);
+    }
+    .mini-card-icon { font-size: 1.5rem; }
+    .mini-card-text { font-size: 0.88rem; opacity: 0.9; }
+
+    /* ── CTA ── */
+    .cta-section {
+      background: linear-gradient(135deg, #1e1b4b, #7c3aed, #db2777, #f59e0b);
+      padding: 5rem 2rem;
+      text-align: center;
+    }
+    .cta-section h2 { font-size: 2.5rem; font-weight: 800; color: #fff; margin-bottom: 1rem; }
+    .cta-section p { color: rgba(255,255,255,0.7); font-size: 1.1rem; margin-bottom: 2rem; }
+
+    /* ── FOOTER ── */
+    .footer-new {
+      background: linear-gradient(135deg, #0f0c29, #1e1b4b);
+      color: rgba(255,255,255,0.5);
+      text-align: center;
+      padding: 2rem;
+      font-size: 0.85rem;
+      border-top: 1px solid rgba(124,58,237,0.3);
+    }
+    .footer-new a { color: #a78bfa; text-decoration: none; }
+
+    @media (max-width: 768px) {
+      .hero-new h1 { font-size: 2.4rem; }
+      .features-grid { grid-template-columns: 1fr; }
+      .services-section h2 { font-size: 1.8rem; }
+    }
+  </style>
 </head>
 <body>
 
+<!-- NAV -->
 <nav>
   <a class="logo" href="/">🌍 TourEase</a>
   <ul>
@@ -22,67 +320,156 @@
   </ul>
 </nav>
 
-<!-- Hero -->
-<section class="hero">
-  <h1>🌍 Your Smart Travel Companion</h1>
-  <p>Weather, Safety, Food, Language & Booking — all in one place for a stress-free journey.</p>
-  <a href="/pages/booking.html" class="btn btn-white">Book Now</a>
+<!-- HERO -->
+<section class="hero-new">
+  <div class="blob3"></div>
+  <div class="hero-badge">✈️ SMART TOURISM APP</div>
+  <h1>Travel Smarter,<br/><span>Explore Better</span></h1>
+  <p>Your all-in-one travel companion for weather, safety, food, language & booking — designed for the modern traveller.</p>
+  <div class="hero-btns">
+    <a href="/pages/booking.html" class="btn-hero-primary">🏨 Book Now</a>
+    <a href="/pages/weather.html" class="btn-hero-outline">🌦️ Check Weather</a>
+  </div>
+  <div class="scroll-down">↓</div>
 </section>
 
-<!-- Services Grid -->
-<div class="section">
-  <h2 class="section-title">Explore Services</h2>
-  <div class="cards-grid">
-    <a class="card" href="/pages/weather.html">
-      <div class="icon">🌦️</div>
-      <h3>Weather</h3>
-      <p>Current & forecast weather for your destination</p>
+<!-- SERVICES -->
+<section class="services-section">
+  <div class="section-label">OUR SERVICES</div>
+  <h2>Everything You Need to Travel</h2>
+  <p>Six powerful features to make your journey smooth and memorable</p>
+  <div class="services-grid">
+    <a class="service-card" href="/pages/weather.html" style="--card-color: linear-gradient(90deg,#00d4ff,#0096ff);">
+      <div class="service-icon" style="background:linear-gradient(135deg,#00d4ff,#0096ff); font-size:1.8rem; width:56px; height:56px; border-radius:14px; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 15px rgba(0,150,255,0.4);">🌦️</div>
+      <h3>Weather Forecast</h3>
+      <p>Get real-time weather and 5-day forecasts for any destination in India and worldwide.</p>
+      <span class="service-arrow">Explore →</span>
     </a>
-    <a class="card" href="/pages/safety.html">
-      <div class="icon">🚨</div>
-      <h3>Safety</h3>
-      <p>Emergency contacts & crowd alerts</p>
+    <a class="service-card" href="/pages/safety.html" style="--card-color: linear-gradient(90deg,#ff0080,#ff4500);">
+      <div class="service-icon" style="background:linear-gradient(135deg,#ff0080,#ff4500); font-size:1.8rem; width:56px; height:56px; border-radius:14px; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 15px rgba(255,0,128,0.4);">🚨</div>
+      <h3>Safety & Emergency</h3>
+      <p>One-tap emergency calls to Police, Ambulance, Fire & Women Helpline. Crowd alerts too.</p>
+      <span class="service-arrow">Explore →</span>
     </a>
-    <a class="card" href="/pages/food.html">
-      <div class="icon">🍲</div>
-      <h3>Food</h3>
-      <p>Temple food & famous local dishes</p>
+    <a class="service-card" href="/pages/food.html" style="--card-color: linear-gradient(90deg,#ffcc00,#ff6a00);">
+      <div class="service-icon" style="background:linear-gradient(135deg,#ffcc00,#ff6a00); font-size:1.8rem; width:56px; height:56px; border-radius:14px; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 15px rgba(255,150,0,0.4);">🍲</div>
+      <h3>Food Guide</h3>
+      <p>Discover free temple food with meal timings, famous local dishes, and instant food by city.</p>
+      <span class="service-arrow">Explore →</span>
     </a>
-    <a class="card" href="/pages/language.html">
-      <div class="icon">🌐</div>
-      <h3>Language</h3>
-      <p>Translate & learn local phrases</p>
+    <a class="service-card" href="/pages/language.html" style="--card-color: linear-gradient(90deg,#a855f7,#ec4899);">
+      <div class="service-icon" style="background:linear-gradient(135deg,#a855f7,#ec4899); font-size:1.8rem; width:56px; height:56px; border-radius:14px; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 15px rgba(168,85,247,0.4);">🌐</div>
+      <h3>Language & Translation</h3>
+      <p>Translate text into Tamil, Hindi, Telugu, Malayalam & more. Learn common tourist phrases.</p>
+      <span class="service-arrow">Explore →</span>
     </a>
-    <a class="card" href="/pages/booking.html">
-      <div class="icon">📅</div>
-      <h3>Booking</h3>
-      <p>Hotels, transport & pre-booking</p>
+    <a class="service-card" href="/pages/booking.html" style="--card-color: linear-gradient(90deg,#10b981,#00d4ff);">
+      <div class="service-icon" style="background:linear-gradient(135deg,#10b981,#00d4ff); font-size:1.8rem; width:56px; height:56px; border-radius:14px; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 15px rgba(16,185,129,0.4);">📅</div>
+      <h3>Hotel Booking</h3>
+      <p>Browse hotels with live room availability, instant food menus, and one-click pre-booking.</p>
+      <span class="service-arrow">Explore →</span>
     </a>
-    <a class="card" href="/pages/safety.html#crowd">
-      <div class="icon">👥</div>
-      <h3>Crowd Alert</h3>
-      <p>Know crowd levels before you visit</p>
+    <a class="service-card" href="/pages/safety.html#crowd" style="--card-color: linear-gradient(90deg,#f59e0b,#ef4444);">
+      <div class="service-icon" style="background:linear-gradient(135deg,#f59e0b,#ef4444); font-size:1.8rem; width:56px; height:56px; border-radius:14px; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 15px rgba(245,158,11,0.4);">👥</div>
+      <h3>Crowd Alerts</h3>
+      <p>Check real-time crowd levels at popular tourist spots before you visit to avoid rush hours.</p>
+      <span class="service-arrow">Explore →</span>
     </a>
   </div>
-</div>
+</section>
 
-<!-- Quick Stats -->
-<div style="background:#fff; padding: 2rem 0;">
-  <div class="section" style="padding-top:0; padding-bottom:0;">
-    <div class="cards-grid">
-      <div class="card"><div class="icon">🏨</div><h3>500+</h3><p>Hotels Listed</p></div>
-      <div class="card"><div class="icon">🗺️</div><h3>200+</h3><p>Destinations</p></div>
-      <div class="card"><div class="icon">🍛</div><h3>100+</h3><p>Local Dishes</p></div>
-      <div class="card"><div class="icon">🌐</div><h3>12+</h3><p>Languages</p></div>
+<!-- STATS -->
+<section class="stats-section">
+  <div class="stats-grid">
+    <div class="stat-item">
+      <div class="stat-number" id="s1">0</div>
+      <div class="stat-label">🏨 Hotels Listed</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-number" id="s2">0</div>
+      <div class="stat-label">🛕 Free Food Places</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-number" id="s3">0</div>
+      <div class="stat-label">🌐 Languages Supported</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-number" id="s4">0</div>
+      <div class="stat-label">🍛 Local Dishes</div>
     </div>
   </div>
-</div>
+</section>
 
-<footer>© 2025 TourEase. Built for smart travellers.</footer>
+<!-- FEATURES -->
+<section class="features-section">
+  <div class="features-grid">
+    <div class="features-text">
+      <div class="section-label">WHY TOUREASE</div>
+      <h2>Built for the Smart Indian Traveller</h2>
+      <p>TourEase combines everything a tourist needs into one seamless experience — from planning to exploring.</p>
+      <ul class="feature-list">
+        <li><span>✅</span> Real-time weather with 5-day forecast</li>
+        <li><span>📞</span> One-tap emergency calls (100, 101, 108, 1091)</li>
+        <li><span>🛕</span> 21 verified free food places across Tamil Nadu</li>
+        <li><span>🌐</span> Accurate translations in 5 Indian languages</li>
+        <li><span>🏨</span> Room availability & instant food at hotels</li>
+        <li><span>🔒</span> Secure login with session management</li>
+      </ul>
+    </div>
+    <div class="features-visual">
+      <h3>🚀 Quick Access</h3>
+      <a href="/pages/safety.html" style="text-decoration:none;">
+        <div class="mini-card">
+          <div class="mini-card-icon">🚨</div>
+          <div class="mini-card-text"><b>Emergency</b> — Tap to call Police, Ambulance</div>
+        </div>
+      </a>
+      <a href="/pages/food.html" style="text-decoration:none;">
+        <div class="mini-card">
+          <div class="mini-card-icon">🛕</div>
+          <div class="mini-card-text"><b>Free Food</b> — Temple meals with timings</div>
+        </div>
+      </a>
+      <a href="/pages/weather.html" style="text-decoration:none;">
+        <div class="mini-card">
+          <div class="mini-card-icon">🌦️</div>
+          <div class="mini-card-text"><b>Weather</b> — Live forecast for any city</div>
+        </div>
+      </a>
+      <a href="/pages/booking.html" style="text-decoration:none;">
+        <div class="mini-card">
+          <div class="mini-card-icon">🏨</div>
+          <div class="mini-card-text"><b>Hotels</b> — Check rooms & book instantly</div>
+        </div>
+      </a>
+      <a href="/pages/language.html" style="text-decoration:none;">
+        <div class="mini-card">
+          <div class="mini-card-icon">🌐</div>
+          <div class="mini-card-text"><b>Translate</b> — Tamil, Hindi, Telugu & more</div>
+        </div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <h2>Ready to Explore India? 🇮🇳</h2>
+  <p>Start your journey with TourEase — your smart travel companion</p>
+  <div class="hero-btns">
+    <a href="/pages/booking.html" class="btn-hero-primary">🏨 Find Hotels</a>
+    <a href="/pages/food.html" class="btn-hero-outline">🍲 Discover Food</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<div class="footer-new">
+  © 2025 TourEase — Built for smart travellers &nbsp;|&nbsp;
+  <a href="/pages/safety.html">Emergency: 100 / 108 / 1091</a>
+</div>
 
 <script src="/static/frontend/js/api.js"></script>
 <script>
-  // Auth guard — redirect to login if not logged in
   const _user = sessionStorage.getItem("tourease_user");
   if (!_user) { window.location.href = "/login"; }
   else {
@@ -90,11 +477,36 @@
     const navUser = document.getElementById("navUser");
     if (navUser) navUser.textContent = "👤 " + (u.name || u.email);
   }
-
   function logout() {
     sessionStorage.removeItem("tourease_user");
     window.location.href = "/login";
   }
+
+  // Animated counters
+  function animateCounter(id, target, suffix = "+") {
+    const el = document.getElementById(id);
+    let count = 0;
+    const step = Math.ceil(target / 60);
+    const timer = setInterval(() => {
+      count = Math.min(count + step, target);
+      el.textContent = count + suffix;
+      if (count >= target) clearInterval(timer);
+    }, 30);
+  }
+
+  // Start counters when stats section is visible
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        animateCounter("s1", 6);
+        animateCounter("s2", 21);
+        animateCounter("s3", 12);
+        animateCounter("s4", 35);
+        observer.disconnect();
+      }
+    });
+  }, { threshold: 0.3 });
+  observer.observe(document.querySelector(".stats-section"));
 </script>
 </body>
 </html>

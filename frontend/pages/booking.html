@@ -5,6 +5,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Booking – TourEase</title>
   <link rel="stylesheet" href="/static/frontend/css/style.css"/>
+  <style>
+    body { background: linear-gradient(135deg, #ecfdf5 0%, #e0f2fe 50%, #f0e7ff 100%) fixed; }
+    .page-header { background: linear-gradient(135deg, #059669, #10b981, #0ea5e9, #7c3aed); }
+    .card { border-top: 3px solid; border-image: linear-gradient(90deg,#10b981,#0ea5e9) 1; }
+    .card .icon { filter: drop-shadow(0 4px 8px rgba(16,185,129,0.45)); }
+    .card p[style*="color:var(--primary)"] { background: linear-gradient(90deg,#059669,#0ea5e9); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .btn-primary { background: linear-gradient(135deg,#059669,#0ea5e9); border: none; }
+    .btn-accent { background: linear-gradient(135deg,#f59e0b,#ef4444); border: none; }
+    .btn-outline { border-color: #059669; color: #059669; }
+    .result-box h3 { background: linear-gradient(90deg,#059669,#0ea5e9); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    th { background: linear-gradient(90deg,#059669,#0ea5e9); }
+    tr:hover td { background: #ecfdf5; }
+    footer { background: linear-gradient(135deg,#1e1b4b,#4c1d95); }
+  </style>
 </head>
 <body>
 
@@ -137,13 +151,56 @@
     }
     if (!data.length) { list.innerHTML = `<div class="alert alert-info">No hotels found.</div>`; return; }
     list.innerHTML = `<div class="cards-grid">${data.map(h => `
-      <div class="card">
+      <div class="card" style="cursor:pointer;" onclick="showHotelDetail(${h.id})">
         <div class="icon">🏨</div>
         <h3>${h.name}</h3>
-        <p>${h.city}</p>
-        <p style="margin-top:6px; font-weight:700; color:var(--primary);">₹${h.price_per_night}/night</p>
+        <p>📍 ${h.city}</p>
+        <p style="margin-top:6px; font-weight:700; color:var(--primary);">₹${h.rooms[0].price}/night</p>
         <p style="font-size:0.85rem; color:#888;">⭐ ${h.rating}</p>
+        <p style="margin-top:6px; font-size:0.85rem;">
+          ${h.total_available > 0
+            ? `<span style="color:green;">✅ ${h.total_available} rooms available</span>`
+            : `<span style="color:red;">❌ Fully Booked</span>`}
+        </p>
+        <p style="font-size:0.78rem; color:#666; margin-top:4px;">🍽️ ${h.instant_food.slice(0,3).join(", ")}...</p>
       </div>`).join("")}</div>`;
+  }
+
+  async function showHotelDetail(id) {
+    const h = await api.get(`/booking/hotels/${id}`);
+    if (h.error) return;
+    const list = document.getElementById("hotelList");
+    list.innerHTML = `
+      <div class="result-box">
+        <button class="btn btn-outline" onclick="loadHotels()" style="margin-bottom:1rem;">← Back</button>
+        <h3>🏨 ${h.name} — ${h.city}</h3>
+        <p>⭐ ${h.rating} &nbsp;|&nbsp; ${h.amenities.join(" • ")}</p>
+
+        <h4 style="margin-top:1.2rem;">🛏️ Room Availability</h4>
+        <table style="margin-top:0.5rem; width:100%;">
+          <thead><tr><th>Room Type</th><th>Price/Night</th><th>Available</th></tr></thead>
+          <tbody>${h.rooms.map(r => `
+            <tr>
+              <td>${r.type}</td>
+              <td>₹${r.price}</td>
+              <td>${r.available > 0
+                ? `<span style="color:green;">✅ ${r.available}</span>`
+                : `<span style="color:red;">❌ Full</span>`}
+              </td>
+            </tr>`).join("")}
+          </tbody>
+        </table>
+
+        <h4 style="margin-top:1.2rem;">🍽️ Instant Foods Available</h4>
+        <div style="display:flex; flex-wrap:wrap; gap:8px; margin-top:0.5rem;">
+          ${h.instant_food.map(f => `<span class="badge badge-medium">${f}</span>`).join("")}
+        </div>
+
+        <button class="btn btn-accent" style="margin-top:1.2rem;"
+          onclick="document.getElementById('bookName').value='${h.name}'; document.getElementById('bookType').value='Hotel'; showTab('prebook')">
+          📋 Book This Hotel
+        </button>
+      </div>`;
   }
 
   async function loadTransport() {

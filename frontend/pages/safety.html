@@ -3,8 +3,140 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Safety – TourEase</title>
+  <title>Safety & Crowd – TourEase</title>
   <link rel="stylesheet" href="/static/frontend/css/style.css"/>
+  <style>
+    body { background: linear-gradient(135deg,#fff0f0 0%,#f0e7ff 50%,#fce7f3 100%); background-attachment:fixed; }
+    .page-header { background: linear-gradient(135deg,#dc2626,#db2777,#7c3aed); }
+    footer { background: linear-gradient(135deg,#1e1b4b,#4c1d95); }
+
+    .tab-bar { display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:1.5rem; }
+    .tab-btn { padding:8px 16px; border-radius:25px; border:2px solid #dc2626; background:#fff;
+      color:#dc2626; font-weight:700; cursor:pointer; font-size:0.82rem; transition:all 0.2s; }
+    .tab-btn.active,.tab-btn:hover { background:linear-gradient(135deg,#dc2626,#db2777); color:#fff; border-color:transparent; }
+
+    /* Contact cards */
+    .contact-card { background:#fff; border-radius:16px; padding:1.2rem; text-align:center;
+      box-shadow:0 4px 20px rgba(220,38,38,0.1); border-top:3px solid;
+      border-image:linear-gradient(90deg,#dc2626,#db2777) 1;
+      transition:transform 0.2s,box-shadow 0.2s; cursor:pointer; }
+    .contact-card:hover { transform:translateY(-4px); box-shadow:0 12px 30px rgba(220,38,38,0.2); }
+    .contact-card .icon { font-size:2.4rem; filter:drop-shadow(0 4px 8px rgba(220,38,38,0.4)); }
+    .contact-card h4 { margin:0.5rem 0 0.3rem; font-size:0.95rem; }
+    .contact-card .num { font-size:1.4rem; font-weight:800; background:linear-gradient(90deg,#dc2626,#db2777);
+      -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+    .call-btn { display:inline-block; background:linear-gradient(135deg,#dc2626,#db2777);
+      color:#fff; padding:7px 18px; border-radius:25px; font-weight:700;
+      text-decoration:none; font-size:0.88rem; margin-top:8px; }
+
+    /* Crowd level cards */
+    .crowd-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:1rem; }
+    .crowd-card { background:#fff; border-radius:16px; padding:1.3rem;
+      box-shadow:0 4px 20px rgba(0,0,0,0.08); position:relative; overflow:hidden; }
+    .crowd-card::before { content:""; position:absolute; top:0; left:0; right:0; height:4px; }
+    .crowd-card.high::before  { background:linear-gradient(90deg,#ef4444,#dc2626); }
+    .crowd-card.medium::before{ background:linear-gradient(90deg,#f59e0b,#f97316); }
+    .crowd-card.low::before   { background:linear-gradient(90deg,#10b981,#059669); }
+    .crowd-dot { width:12px; height:12px; border-radius:50%; display:inline-block; margin-right:6px; animation:pulse 1.5s infinite; }
+    .dot-high   { background:#ef4444; box-shadow:0 0 0 0 rgba(239,68,68,0.4); }
+    .dot-medium { background:#f59e0b; box-shadow:0 0 0 0 rgba(245,158,11,0.4); }
+    .dot-low    { background:#10b981; box-shadow:0 0 0 0 rgba(16,185,129,0.4); }
+    @keyframes pulse {
+      0%   { box-shadow:0 0 0 0 rgba(239,68,68,0.4); }
+      70%  { box-shadow:0 0 0 8px rgba(239,68,68,0); }
+      100% { box-shadow:0 0 0 0 rgba(239,68,68,0); }
+    }
+    .crowd-name { font-size:1rem; font-weight:700; color:#1e1b4b; margin-bottom:4px; }
+    .crowd-level-badge { display:inline-flex; align-items:center; padding:4px 12px;
+      border-radius:20px; font-size:0.8rem; font-weight:700; margin:6px 0; }
+    .badge-high   { background:#fee2e2; color:#991b1b; }
+    .badge-medium { background:#fef3cd; color:#92400e; }
+    .badge-low    { background:#d1fae5; color:#065f46; }
+    .crowd-advice { font-size:0.82rem; color:#6b7280; margin-top:4px; }
+    .best-time-tag { display:inline-block; background:linear-gradient(135deg,#ede9fe,#fce7f3);
+      color:#6d28d9; padding:4px 10px; border-radius:12px; font-size:0.78rem; font-weight:600; margin-top:6px; }
+
+    /* Prediction */
+    .predict-card { background:#fff; border-radius:16px; padding:1.4rem;
+      box-shadow:0 4px 20px rgba(0,0,0,0.08); margin-bottom:1rem; }
+    .predict-card h4 { font-size:1rem; font-weight:700; color:#1e1b4b; margin-bottom:0.8rem; }
+    .predict-row { display:flex; align-items:center; gap:10px; padding:8px 0;
+      border-bottom:1px solid #f3f4f6; font-size:0.88rem; }
+    .predict-time { font-weight:700; color:#374151; min-width:120px; }
+    .predict-bar { flex:1; height:8px; border-radius:4px; background:#f3f4f6; overflow:hidden; }
+    .predict-fill { height:100%; border-radius:4px; transition:width 0.8s ease; }
+    .fill-high   { background:linear-gradient(90deg,#ef4444,#dc2626); }
+    .fill-medium { background:linear-gradient(90deg,#f59e0b,#f97316); }
+    .fill-low    { background:linear-gradient(90deg,#10b981,#059669); }
+
+    /* Alternatives */
+    .alt-card { background:#fff; border-radius:16px; padding:1.3rem;
+      box-shadow:0 4px 20px rgba(0,0,0,0.08); border-left:4px solid #10b981; margin-bottom:0.8rem; }
+    .alt-card h4 { font-size:0.95rem; font-weight:700; color:#065f46; }
+    .alt-card p  { font-size:0.82rem; color:#6b7280; margin-top:4px; }
+    .alt-meta { display:flex; gap:8px; flex-wrap:wrap; margin-top:8px; }
+    .alt-tag { font-size:0.75rem; padding:3px 10px; border-radius:12px;
+      background:#d1fae5; color:#065f46; font-weight:600; }
+
+    /* Heatmap */
+    .heatmap-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:0.8rem; }
+    .heatmap-cell { border-radius:14px; padding:1rem; text-align:center; font-weight:700;
+      font-size:0.88rem; box-shadow:0 2px 12px rgba(0,0,0,0.08); transition:transform 0.2s; cursor:pointer; }
+    .heatmap-cell:hover { transform:scale(1.04); }
+    .heat-high   { background:linear-gradient(135deg,#fee2e2,#fecaca); color:#991b1b; border:2px solid #fca5a5; }
+    .heat-medium { background:linear-gradient(135deg,#fef3cd,#fde68a); color:#92400e; border:2px solid #fcd34d; }
+    .heat-low    { background:linear-gradient(135deg,#d1fae5,#a7f3d0); color:#065f46; border:2px solid #6ee7b7; }
+    .heat-icon { font-size:1.8rem; margin-bottom:4px; filter:drop-shadow(0 2px 4px rgba(0,0,0,0.15)); }
+
+    /* Virtual Queue */
+    .queue-card { background:linear-gradient(135deg,#f5f0ff,#fce7f3); border-radius:16px;
+      padding:1.5rem; box-shadow:0 4px 20px rgba(124,58,237,0.12); border:1px solid #ddd6fe; }
+    .token-display { background:linear-gradient(135deg,#7c3aed,#db2777); color:#fff;
+      border-radius:16px; padding:1.5rem; text-align:center; margin:1rem 0; }
+    .token-num { font-size:3rem; font-weight:900; }
+    .token-label { font-size:0.85rem; opacity:0.85; }
+    .queue-progress { background:#e5e7eb; border-radius:8px; height:10px; margin:10px 0; overflow:hidden; }
+    .queue-fill { height:100%; background:linear-gradient(90deg,#7c3aed,#db2777); border-radius:8px; transition:width 1s ease; }
+
+    /* AI Assistant */
+    .ai-card { background:linear-gradient(135deg,#0f0c29,#302b63); border-radius:20px;
+      padding:1.8rem; color:#fff; box-shadow:0 8px 32px rgba(15,12,41,0.4); }
+    .ai-card h3 { font-size:1.2rem; font-weight:800; margin-bottom:1rem; }
+    .ai-msg { background:rgba(255,255,255,0.1); border-radius:12px; padding:12px 16px;
+      margin-bottom:0.8rem; font-size:0.88rem; line-height:1.6; backdrop-filter:blur(10px); }
+    .ai-msg.user { background:rgba(124,58,237,0.4); text-align:right; }
+    .ai-msg.bot  { background:rgba(255,255,255,0.12); }
+    .ai-input-row { display:flex; gap:8px; margin-top:1rem; }
+    .ai-input { flex:1; padding:10px 16px; border-radius:25px; border:none;
+      background:rgba(255,255,255,0.15); color:#fff; font-size:0.9rem; outline:none; }
+    .ai-input::placeholder { color:rgba(255,255,255,0.5); }
+    .ai-send { padding:10px 20px; border-radius:25px; border:none;
+      background:linear-gradient(135deg,#7c3aed,#db2777); color:#fff;
+      font-weight:700; cursor:pointer; font-size:0.88rem; }
+
+    /* Escape Mode */
+    .escape-card { background:linear-gradient(135deg,#dc2626,#db2777,#7c3aed);
+      border-radius:20px; padding:1.8rem; color:#fff; box-shadow:0 8px 32px rgba(220,38,38,0.35); }
+    .escape-card h3 { font-size:1.2rem; font-weight:800; margin-bottom:1rem; }
+    .escape-step { background:rgba(255,255,255,0.15); border-radius:12px; padding:12px 16px;
+      margin-bottom:0.6rem; display:flex; align-items:center; gap:12px;
+      font-size:0.88rem; backdrop-filter:blur(10px); }
+    .escape-num { width:28px; height:28px; border-radius:50%; background:rgba(255,255,255,0.25);
+      display:flex; align-items:center; justify-content:center; font-weight:800; font-size:0.85rem; flex-shrink:0; }
+
+    /* Route */
+    .route-card { background:#fff; border-radius:16px; padding:1.4rem;
+      box-shadow:0 4px 20px rgba(0,0,0,0.08); }
+    .route-step { display:flex; align-items:flex-start; gap:12px; padding:10px 0;
+      border-bottom:1px solid #f3f4f6; font-size:0.88rem; }
+    .route-dot { width:10px; height:10px; border-radius:50%; background:#7c3aed; margin-top:4px; flex-shrink:0; }
+    .route-line { width:2px; height:20px; background:#e5e7eb; margin:0 4px; }
+
+    .btn-primary { background:linear-gradient(135deg,#dc2626,#db2777); border:none; color:#fff; }
+    .btn-outline  { border-color:#7c3aed; color:#7c3aed; }
+    .result-box h3 { background:linear-gradient(90deg,#dc2626,#db2777);
+      -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+  </style>
 </head>
 <body>
 
@@ -13,108 +145,440 @@
   <ul>
     <li><a href="/">Home</a></li>
     <li><a href="/pages/weather.html">Weather</a></li>
-    <li><a href="/pages/safety.html">Safety</a></li>
+    <li><a href="/pages/safety.html" class="active">Safety</a></li>
     <li><a href="/pages/food.html">Food</a></li>
     <li><a href="/pages/language.html">Language</a></li>
     <li><a href="/pages/booking.html">Booking</a></li>
-    <li><a href="#" id="navUser" style="color:#fff; font-weight:700;"></a></li>
-    <li><a href="#" onclick="logout()" style="background:rgba(255,255,255,0.15); border-radius:20px;">Logout</a></li>
+    <li><a href="#" id="navUser" style="color:#fff;font-weight:700;"></a></li>
+    <li><a href="#" onclick="logout()" style="background:rgba(255,255,255,0.15);border-radius:20px;">Logout</a></li>
   </ul>
 </nav>
 
 <div class="page-header">
-  <h1>🚨 Safety & Emergency</h1>
-  <p>Emergency contacts and real-time crowd alerts</p>
+  <h1>🚨 Safety & Smart Crowd</h1>
+  <p>Emergency contacts, live crowd levels, predictions & AI assistance</p>
 </div>
 
 <div class="section">
 
-  <!-- Emergency Contacts -->
-  <h2 class="section-title">Emergency Contacts</h2>
-  <div class="contact-grid" id="contactGrid">
-    <div class="loader">Loading contacts...</div>
+  <!-- Tab Bar -->
+  <div class="tab-bar">
+    <button class="tab-btn active" onclick="showTab('emergency',this)">🚨 Emergency</button>
+    <button class="tab-btn" onclick="showTab('crowd',this)">🟢 Live Crowd</button>
+    <button class="tab-btn" onclick="showTab('predict',this)">🔮 Prediction</button>
+    <button class="tab-btn" onclick="showTab('heatmap',this)">📱 Heatmap</button>
+    <button class="tab-btn" onclick="showTab('alternatives',this)">🗺️ Alternatives</button>
+    <button class="tab-btn" onclick="showTab('queue',this)">🎫 Virtual Queue</button>
+    <button class="tab-btn" onclick="showTab('route',this)">🚶 Smart Route</button>
+    <button class="tab-btn" onclick="showTab('ai',this)">🤖 AI Assistant</button>
+    <button class="tab-btn" onclick="showTab('escape',this)">🆘 Escape Mode</button>
   </div>
 
-  <!-- Crowd Alert -->
-  <h2 class="section-title" style="margin-top:2.5rem;" id="crowd">Crowd Alert</h2>
-  <div class="form-card" style="margin:0 0 1.5rem;">
-    <div class="form-group">
-      <label>Place Name</label>
-      <input type="text" id="placeInput" placeholder="e.g. marina beach, taj mahal"/>
+  <!-- EMERGENCY TAB -->
+  <div id="tab-emergency" class="tab-content">
+    <div class="contact-grid" id="contactGrid"><div class="loader">Loading...</div></div>
+  </div>
+
+  <!-- LIVE CROWD TAB -->
+  <div id="tab-crowd" class="tab-content" style="display:none;">
+    <div class="form-card" style="margin-bottom:1.5rem;">
+      <div class="form-group">
+        <label>Search Place</label>
+        <input type="text" id="placeInput" placeholder="e.g. marina beach, taj mahal"/>
+      </div>
+      <button class="btn btn-primary" onclick="checkCrowd()">🔍 Check Crowd</button>
+      <button class="btn btn-outline" style="margin-left:8px;" onclick="loadAllCrowds()">📋 Show All</button>
     </div>
-    <button class="btn btn-primary" onclick="checkCrowd()">Check Crowd Level</button>
-    <button class="btn btn-outline" style="margin-left:8px;" onclick="loadAllCrowds()">Show All</button>
+    <div id="crowdResult"></div>
+    <div id="allCrowdGrid" class="crowd-grid"></div>
   </div>
 
-  <div id="crowdResult"></div>
+  <!-- PREDICTION TAB -->
+  <div id="tab-predict" class="tab-content" style="display:none;">
+    <div class="form-card" style="margin-bottom:1.5rem;">
+      <div class="form-group">
+        <label>Select Place</label>
+        <select id="predictPlace">
+          <option value="marina_beach">Marina Beach</option>
+          <option value="meenakshi_temple">Meenakshi Temple</option>
+          <option value="taj_mahal">Taj Mahal</option>
+          <option value="gateway_of_india">Gateway of India</option>
+          <option value="kodaikanal">Kodaikanal</option>
+          <option value="ooty">Ooty</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Day</label>
+        <select id="predictDay">
+          <option>Today</option><option>Tomorrow</option><option>Weekend</option><option>Holiday</option>
+        </select>
+      </div>
+      <button class="btn btn-primary" onclick="showPrediction()">🔮 Predict Crowd</button>
+    </div>
+    <div id="predictResult"></div>
+  </div>
+
+  <!-- HEATMAP TAB -->
+  <div id="tab-heatmap" class="tab-content" style="display:none;">
+    <p style="color:#6b7280;margin-bottom:1.2rem;font-size:0.9rem;">🗺️ Real-time crowd density across popular tourist spots</p>
+    <div class="heatmap-grid" id="heatmapGrid"></div>
+    <div style="display:flex;gap:1rem;margin-top:1.2rem;flex-wrap:wrap;">
+      <span style="font-size:0.82rem;font-weight:600;">Legend:</span>
+      <span style="font-size:0.82rem;">🟢 Low crowd</span>
+      <span style="font-size:0.82rem;">🟡 Moderate crowd</span>
+      <span style="font-size:0.82rem;">🔴 High crowd</span>
+    </div>
+  </div>
+
+  <!-- ALTERNATIVES TAB -->
+  <div id="tab-alternatives" class="tab-content" style="display:none;">
+    <div class="form-card" style="margin-bottom:1.5rem;">
+      <div class="form-group">
+        <label>Crowded Place You Want to Avoid</label>
+        <select id="altPlace">
+          <option value="marina_beach">Marina Beach (High Crowd)</option>
+          <option value="meenakshi_temple">Meenakshi Temple (High Crowd)</option>
+          <option value="taj_mahal">Taj Mahal (High Crowd)</option>
+          <option value="gateway_of_india">Gateway of India (Medium Crowd)</option>
+          <option value="ooty">Ooty (Medium Crowd)</option>
+        </select>
+      </div>
+      <button class="btn btn-primary" onclick="showAlternatives()">🗺️ Find Alternatives</button>
+    </div>
+    <div id="altResult"></div>
+  </div>
+
+  <!-- VIRTUAL QUEUE TAB -->
+  <div id="tab-queue" class="tab-content" style="display:none;">
+    <div class="form-card" style="margin-bottom:1.5rem;">
+      <div class="form-group">
+        <label>Select Attraction</label>
+        <select id="queuePlace">
+          <option value="meenakshi_temple">Meenakshi Temple</option>
+          <option value="taj_mahal">Taj Mahal</option>
+          <option value="marina_beach">Marina Beach</option>
+          <option value="gateway_of_india">Gateway of India</option>
+        </select>
+      </div>
+      <button class="btn btn-primary" onclick="joinQueue()">🎫 Get Queue Token</button>
+    </div>
+    <div id="queueResult"></div>
+  </div>
+
+  <!-- SMART ROUTE TAB -->
+  <div id="tab-route" class="tab-content" style="display:none;">
+    <div class="form-card" style="margin-bottom:1.5rem;">
+      <div class="form-group">
+        <label>From</label>
+        <input type="text" id="routeFrom" placeholder="e.g. Hotel, Chennai Central"/>
+      </div>
+      <div class="form-group">
+        <label>To</label>
+        <input type="text" id="routeTo" placeholder="e.g. Marina Beach"/>
+      </div>
+      <button class="btn btn-primary" onclick="showRoute()">🚶 Get Smart Route</button>
+    </div>
+    <div id="routeResult"></div>
+  </div>
+
+  <!-- AI ASSISTANT TAB -->
+  <div id="tab-ai" class="tab-content" style="display:none;">
+    <div class="ai-card">
+      <h3>🤖 AI Tourist Assistant</h3>
+      <div id="aiChat">
+        <div class="ai-msg bot">👋 Hi! I'm your AI travel assistant. Ask me anything like:<br/>
+        <i>"I have 3 hours. Where can I go without heavy crowds?"</i><br/>
+        <i>"Best place to visit this evening?"</i><br/>
+        <i>"Suggest a peaceful spot near Marina Beach."</i></div>
+      </div>
+      <div class="ai-input-row">
+        <input class="ai-input" id="aiInput" placeholder="Ask me anything..." onkeydown="if(event.key==='Enter') sendAI()"/>
+        <button class="ai-send" onclick="sendAI()">Send ➤</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ESCAPE MODE TAB -->
+  <div id="tab-escape" class="tab-content" style="display:none;">
+    <div class="form-card" style="margin-bottom:1.5rem;">
+      <div class="form-group">
+        <label>Your Current Location (crowded place)</label>
+        <select id="escapePlace">
+          <option value="marina_beach">Marina Beach</option>
+          <option value="meenakshi_temple">Meenakshi Temple</option>
+          <option value="taj_mahal">Taj Mahal</option>
+          <option value="gateway_of_india">Gateway of India</option>
+          <option value="ooty">Ooty</option>
+        </select>
+      </div>
+      <button class="btn btn-primary" onclick="activateEscape()">🆘 Activate Crowd Escape Mode</button>
+    </div>
+    <div id="escapeResult"></div>
+  </div>
 
 </div>
 
 <footer>© 2025 TourEase</footer>
-
 <script src="/static/frontend/js/api.js"></script>
 <script>
+
+  // Auth
   if (!sessionStorage.getItem("tourease_user")) { window.location.href = "/login"; }
   else { const u = JSON.parse(sessionStorage.getItem("tourease_user")); const el = document.getElementById("navUser"); if(el) el.textContent = "👤 " + (u.name||u.email); }
   function logout() { sessionStorage.removeItem("tourease_user"); window.location.href = "/login"; }
-  const ICONS = {
-    police: "👮", firefighter: "🚒", doctor: "🩺", women_alert: "👩"
+
+  function showTab(name, btn) {
+    document.querySelectorAll(".tab-content").forEach(t => t.style.display = "none");
+    document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+    document.getElementById("tab-" + name).style.display = "block";
+    if (btn) btn.classList.add("active");
+  }
+
+  // ── CROWD DATA ──
+  const PLACES = {
+    marina_beach:     { name:"Marina Beach", city:"Chennai", level:"high",   visitors:4200, advice:"Avoid 5–8 PM peak hours", best:"6–8 AM or after 8 PM", icon:"🏖️", lat:13.05, lng:80.28 },
+    meenakshi_temple: { name:"Meenakshi Temple", city:"Madurai", level:"high",   visitors:3800, advice:"Very crowded on weekends & festivals", best:"6–8 AM", icon:"🛕", lat:9.92, lng:78.12 },
+    taj_mahal:        { name:"Taj Mahal", city:"Agra", level:"medium", visitors:2100, advice:"Manageable crowd on weekdays", best:"7–9 AM", icon:"🕌", lat:27.17, lng:78.04 },
+    gateway_of_india: { name:"Gateway of India", city:"Mumbai", level:"medium", visitors:1800, advice:"Moderate crowd, avoid evenings", best:"8–10 AM", icon:"🏛️", lat:18.92, lng:72.83 },
+    kodaikanal:       { name:"Kodaikanal", city:"Kodaikanal", level:"low",    visitors:600,  advice:"Great time to visit!", best:"Anytime", icon:"🏔️", lat:10.23, lng:77.48 },
+    ooty:             { name:"Ooty", city:"Ooty", level:"medium", visitors:1500, advice:"Moderate crowd, pleasant weather", best:"9–11 AM", icon:"🌿", lat:11.41, lng:76.69 },
+    rameswaram:       { name:"Rameswaram", city:"Rameswaram", level:"low",    visitors:700,  advice:"Peaceful, good time to visit", best:"Anytime", icon:"🛕", lat:9.28, lng:79.31 },
+    mysore_palace:    { name:"Mysore Palace", city:"Mysore", level:"medium", visitors:1900, advice:"Busy on Sundays & holidays", best:"9–11 AM", icon:"🏰", lat:12.30, lng:76.65 },
+    golden_temple:    { name:"Golden Temple", city:"Amritsar", level:"high",   visitors:5000, advice:"Always crowded, go early morning", best:"4–6 AM", icon:"⛪", lat:31.62, lng:74.87 },
+    qutub_minar:      { name:"Qutub Minar", city:"Delhi", level:"low",    visitors:800,  advice:"Less crowded on weekdays", best:"9 AM–12 PM", icon:"🗼", lat:28.52, lng:77.18 },
   };
-  const LABELS = {
-    police: "Police", firefighter: "Firefighter", doctor: "Doctor / Ambulance", women_alert: "Women Helpline"
+
+  const ALTERNATIVES = {
+    marina_beach:     [{ name:"Elliot's Beach", dist:"4 km", level:"low",  time:"10 min", tip:"Quieter, cleaner beach" }, { name:"Besant Nagar Beach", dist:"5 km", level:"low", time:"12 min", tip:"Peaceful evening walks" }],
+    meenakshi_temple: [{ name:"Thiruparankundram Temple", dist:"8 km", level:"low", time:"20 min", tip:"Ancient cave temple, less crowded" }, { name:"Alagar Kovil", dist:"21 km", level:"low", time:"35 min", tip:"Scenic hilltop temple" }],
+    taj_mahal:        [{ name:"Agra Fort", dist:"2 km", level:"low", time:"8 min", tip:"Equally historic, far fewer tourists" }, { name:"Mehtab Bagh", dist:"1 km", level:"low", time:"5 min", tip:"Best Taj view with no crowd" }],
+    gateway_of_india: [{ name:"Elephanta Caves", dist:"10 km", level:"low", time:"1 hr ferry", tip:"UNESCO site, peaceful & scenic" }, { name:"Bandra Fort", dist:"15 km", level:"low", time:"25 min", tip:"Sea view, very less crowded" }],
+    ooty:             [{ name:"Avalanche Lake", dist:"28 km", level:"low", time:"45 min", tip:"Hidden gem, pristine nature" }, { name:"Emerald Lake", dist:"25 km", level:"low", time:"40 min", tip:"Serene & less touristy" }],
   };
+
+  const PREDICTIONS = {
+    marina_beach:     { Today:[{t:"6–8 AM",l:"low",p:20},{t:"9–11 AM",l:"medium",p:50},{t:"12–2 PM",l:"high",p:85},{t:"3–5 PM",l:"high",p:90},{t:"6–8 PM",l:"high",p:95},{t:"8–10 PM",l:"medium",p:55}], Tomorrow:[{t:"6–8 AM",l:"low",p:25},{t:"9–11 AM",l:"high",p:80},{t:"12–2 PM",l:"high",p:90},{t:"6–8 PM",l:"high",p:95}], Weekend:[{t:"Morning",l:"high",p:90},{t:"Afternoon",l:"high",p:95},{t:"Evening",l:"high",p:98}], Holiday:[{t:"All Day",l:"high",p:99}] },
+    meenakshi_temple: { Today:[{t:"6–8 AM",l:"low",p:30},{t:"9–11 AM",l:"medium",p:60},{t:"12–2 PM",l:"high",p:88},{t:"6–8 PM",l:"high",p:92}], Tomorrow:[{t:"6–8 AM",l:"medium",p:55},{t:"12–2 PM",l:"high",p:90}], Weekend:[{t:"Morning",l:"high",p:92},{t:"Evening",l:"high",p:96}], Holiday:[{t:"All Day",l:"high",p:99}] },
+    taj_mahal:        { Today:[{t:"7–9 AM",l:"low",p:25},{t:"10–12 PM",l:"medium",p:65},{t:"1–3 PM",l:"high",p:80},{t:"4–6 PM",l:"medium",p:60}], Tomorrow:[{t:"7–9 AM",l:"low",p:30},{t:"11 AM–1 PM",l:"high",p:85}], Weekend:[{t:"Morning",l:"high",p:88},{t:"Afternoon",l:"high",p:92}], Holiday:[{t:"All Day",l:"high",p:95}] },
+    gateway_of_india: { Today:[{t:"8–10 AM",l:"low",p:20},{t:"11 AM–1 PM",l:"medium",p:55},{t:"4–7 PM",l:"high",p:85}], Tomorrow:[{t:"8–10 AM",l:"medium",p:50},{t:"5–7 PM",l:"high",p:88}], Weekend:[{t:"Afternoon",l:"high",p:90},{t:"Evening",l:"high",p:95}], Holiday:[{t:"All Day",l:"high",p:97}] },
+    kodaikanal:       { Today:[{t:"All Day",l:"low",p:30}], Tomorrow:[{t:"Morning",l:"low",p:25},{t:"Afternoon",l:"medium",p:50}], Weekend:[{t:"Morning",l:"medium",p:55},{t:"Afternoon",l:"high",p:75}], Holiday:[{t:"All Day",l:"high",p:85}] },
+    ooty:             { Today:[{t:"9–11 AM",l:"low",p:35},{t:"12–3 PM",l:"medium",p:60},{t:"4–6 PM",l:"high",p:80}], Tomorrow:[{t:"9–11 AM",l:"medium",p:55},{t:"3–6 PM",l:"high",p:82}], Weekend:[{t:"All Day",l:"high",p:88}], Holiday:[{t:"All Day",l:"high",p:95}] },
+  };
+
+  // ── EMERGENCY CONTACTS ──
+  const ICONS  = { police:"👮", firefighter:"🚒", doctor:"🩺", women_alert:"👩" };
+  const LABELS = { police:"Police", firefighter:"Fire & Rescue", doctor:"Ambulance", women_alert:"Women Helpline" };
 
   async function loadContacts() {
     const data = await api.get("/safety/emergency-contacts");
-    const grid = document.getElementById("contactGrid");
-    if (data.error) {
-      grid.innerHTML = `<div class="alert alert-error">${data.error}</div>`;
-      return;
-    }
-    grid.innerHTML = Object.entries(data).map(([key, val]) => `
-      <div class="contact-card">
-        <div class="icon">${ICONS[key] || "📞"}</div>
-        <h4>${LABELS[key] || key}</h4>
-        <p style="font-size:0.8rem; color:#888; margin-bottom:6px;">${val.description}</p>
-        <a href="tel:${val.number}">${val.number}</a>
-      </div>
-    `).join("");
+    document.getElementById("contactGrid").innerHTML = Object.entries(data).map(([key, val]) => `
+      <div class="contact-card" onclick="window.location.href='tel:${val.number}'">
+        <div class="icon">${ICONS[key]||"📞"}</div>
+        <h4>${LABELS[key]||key}</h4>
+        <p style="font-size:0.78rem;color:#888;margin-bottom:6px;">${val.description}</p>
+        <div class="num">${val.number}</div>
+        <a href="tel:${val.number}" class="call-btn" onclick="event.stopPropagation()">📞 Call Now</a>
+      </div>`).join("");
+  }
+
+  // ── LIVE CROWD ──
+  function crowdCard(key, d) {
+    const p = PLACES[key] || { name: key.replace(/_/g," "), level: d.level, advice: d.advice, best:"Morning", icon:"📍", visitors: 0 };
+    const lvl = p.level || d.level;
+    const dotCls = { high:"dot-high", medium:"dot-medium", low:"dot-low" }[lvl];
+    const badgeCls = { high:"badge-high", medium:"badge-medium", low:"badge-low" }[lvl];
+    const emoji = { high:"🔴", medium:"🟡", low:"🟢" }[lvl];
+    return `<div class="crowd-card ${lvl}">
+      <div class="crowd-name">${p.icon||"📍"} ${p.name||key}</div>
+      <div><span class="crowd-dot ${dotCls}"></span><span class="crowd-level-badge ${badgeCls}">${emoji} ${lvl.toUpperCase()} CROWD</span></div>
+      <div class="crowd-advice">${p.advice||d.advice}</div>
+      <div class="best-time-tag">⏰ Best: ${p.best||"Morning"}</div>
+      ${p.visitors ? `<div style="font-size:0.75rem;color:#9ca3af;margin-top:6px;">~${p.visitors.toLocaleString()} visitors today</div>` : ""}
+    </div>`;
   }
 
   async function checkCrowd() {
     const place = document.getElementById("placeInput").value.trim();
     const box = document.getElementById("crowdResult");
     if (!place) { box.innerHTML = `<div class="alert alert-error">Enter a place name.</div>`; return; }
-
-    const data = await api.get(`/safety/crowd-alert?place=${encodeURIComponent(place)}`);
-    if (data.error) {
-      const available = (data.available || []).join(", ");
-      box.innerHTML = `<div class="alert alert-error">${data.error}${available ? ". Available: " + available : ""}</div>`;
-      return;
+    const key = Object.keys(PLACES).find(k => k.replace(/_/g," ").includes(place.toLowerCase()) || place.toLowerCase().includes(k.replace(/_/g," ")));
+    if (key) {
+      box.innerHTML = `<div class="crowd-grid">${crowdCard(key, PLACES[key])}</div>`;
+    } else {
+      box.innerHTML = `<div class="alert alert-error">Place not found. Try: ${Object.values(PLACES).map(p=>p.name).join(", ")}</div>`;
     }
-    box.innerHTML = renderCrowdCard(data);
   }
 
-  async function loadAllCrowds() {
-    const data = await api.get("/safety/crowd-alert");
-    const box = document.getElementById("crowdResult");
-    if (data.error) { box.innerHTML = `<div class="alert alert-error">${data.error}</div>`; return; }
-    box.innerHTML = `<div class="cards-grid">${Object.entries(data).map(([place, info]) =>
-      renderCrowdCard({ place, ...info })
-    ).join("")}</div>`;
+  function loadAllCrowds() {
+    document.getElementById("crowdResult").innerHTML = "";
+    document.getElementById("allCrowdGrid").innerHTML = Object.entries(PLACES).map(([k,v]) => crowdCard(k,v)).join("");
   }
 
-  function renderCrowdCard(d) {
-    const badgeClass = { high: "badge-high", medium: "badge-medium", low: "badge-low" }[d.level] || "badge-low";
-    return `
-      <div class="result-box" style="margin-bottom:1rem;">
-        <h3 style="text-transform:capitalize;">${d.place.replace(/_/g, " ")}</h3>
-        <p style="margin:8px 0;">Crowd Level: <span class="badge ${badgeClass}">${d.level.toUpperCase()}</span></p>
-        <p style="color:#555;">${d.advice}</p>
+  // ── PREDICTION ──
+  function showPrediction() {
+    const place = document.getElementById("predictPlace").value;
+    const day   = document.getElementById("predictDay").value;
+    const pData = PREDICTIONS[place];
+    const slots = pData ? (pData[day] || pData["Today"]) : [];
+    const pInfo = PLACES[place];
+    const fillCls = { high:"fill-high", medium:"fill-medium", low:"fill-low" };
+    document.getElementById("predictResult").innerHTML = `
+      <div class="predict-card">
+        <h4>🔮 Crowd Prediction — ${pInfo?.name||place} — ${day}</h4>
+        ${slots.map(s => `
+          <div class="predict-row">
+            <span class="predict-time">⏰ ${s.t}</span>
+            <div class="predict-bar"><div class="predict-fill ${fillCls[s.l]}" style="width:${s.p}%"></div></div>
+            <span class="crowd-level-badge ${s.l==="high"?"badge-high":s.l==="medium"?"badge-medium":"badge-low"}" style="margin:0;margin-left:8px;font-size:0.75rem;">${s.l.toUpperCase()}</span>
+          </div>`).join("")}
+        <div style="margin-top:1rem;padding:10px;background:#f0fdf4;border-radius:10px;font-size:0.85rem;color:#065f46;font-weight:600;">
+          ⏰ Best time to visit: <b>${pInfo?.best||"Morning"}</b>
+        </div>
       </div>`;
   }
 
+  // ── HEATMAP ──
+  function loadHeatmap() {
+    document.getElementById("heatmapGrid").innerHTML = Object.entries(PLACES).map(([k,p]) => {
+      const cls = { high:"heat-high", medium:"heat-medium", low:"heat-low" }[p.level];
+      const emoji = { high:"🔴", medium:"🟡", low:"🟢" }[p.level];
+      return `<div class="heatmap-cell ${cls}" onclick="document.querySelector('[onclick*=crowd]').click(); document.getElementById('placeInput').value='${p.name}'; checkCrowd();">
+        <div class="heat-icon">${p.icon}</div>
+        <div>${p.name}</div>
+        <div style="font-size:0.75rem;margin-top:2px;">${p.city}</div>
+        <div style="font-size:1rem;margin-top:4px;">${emoji} ${p.level.toUpperCase()}</div>
+      </div>`;
+    }).join("");
+  }
+
+  // ── ALTERNATIVES ──
+  function showAlternatives() {
+    const place = document.getElementById("altPlace").value;
+    const alts  = ALTERNATIVES[place] || [];
+    const pInfo = PLACES[place];
+    if (!alts.length) { document.getElementById("altResult").innerHTML = `<div class="alert alert-info">No alternatives found.</div>`; return; }
+    document.getElementById("altResult").innerHTML = `
+      <div class="alert alert-info" style="margin-bottom:1rem;">🔴 <b>${pInfo?.name}</b> is crowded right now. Here are better alternatives nearby:</div>
+      ${alts.map(a => `
+        <div class="alt-card">
+          <h4>✅ ${a.name}</h4>
+          <p>${a.tip}</p>
+          <div class="alt-meta">
+            <span class="alt-tag">📍 ${a.dist} away</span>
+            <span class="alt-tag">🚗 ~${a.time}</span>
+            <span class="alt-tag">🟢 Low Crowd</span>
+          </div>
+        </div>`).join("")}`;
+  }
+
+  // ── VIRTUAL QUEUE ──
+  let queueTokens = {};
+  function joinQueue() {
+    const place = document.getElementById("queuePlace").value;
+    const pInfo = PLACES[place];
+    if (!queueTokens[place]) queueTokens[place] = Math.floor(Math.random() * 40) + 10;
+    const token = queueTokens[place]++;
+    const wait  = Math.floor(token * 2.5);
+    const ahead = Math.max(0, token - 1);
+    const pct   = Math.min(95, Math.round((token / (token + 20)) * 100));
+    document.getElementById("queueResult").innerHTML = `
+      <div class="queue-card">
+        <h4 style="font-weight:700;color:#4c1d95;margin-bottom:0.5rem;">🎫 Virtual Queue — ${pInfo?.name}</h4>
+        <div class="token-display">
+          <div class="token-label">Your Token Number</div>
+          <div class="token-num">#${token}</div>
+          <div class="token-label">Estimated wait: ~${wait} minutes</div>
+        </div>
+        <div style="font-size:0.88rem;color:#374151;margin-bottom:6px;">👥 ${ahead} people ahead of you</div>
+        <div class="queue-progress"><div class="queue-fill" style="width:${pct}%"></div></div>
+        <div style="font-size:0.78rem;color:#6b7280;margin-top:4px;">Queue filling up — ${pct}% capacity</div>
+        <div style="margin-top:1rem;padding:10px;background:#ede9fe;border-radius:10px;font-size:0.85rem;color:#4c1d95;font-weight:600;">
+          🔔 You'll be notified 10 minutes before your turn. Explore nearby spots meanwhile!
+        </div>
+      </div>`;
+  }
+
+  // ── SMART ROUTE ──
+  function showRoute() {
+    const from = document.getElementById("routeFrom").value.trim() || "Your Hotel";
+    const to   = document.getElementById("routeTo").value.trim()   || "Marina Beach";
+    const toKey = Object.keys(PLACES).find(k => to.toLowerCase().includes(k.replace(/_/g," ")));
+    const crowd = toKey ? PLACES[toKey].level : "medium";
+    const steps = [
+      { icon:"🏨", text:`Start from ${from}` },
+      { icon:"🚶", text:"Walk to nearest metro/bus stop (avoid main road — heavy traffic)" },
+      { icon:"🚇", text:"Take metro/bus — avoids congested roads near destination" },
+      { icon:"🗺️", text:`Alight 1 stop early — approach ${to} from the less crowded side entrance` },
+      { icon:"✅", text:`Arrive at ${to} — ${crowd === "high" ? "🔴 High crowd, visit early morning for best experience" : crowd === "medium" ? "🟡 Moderate crowd, manageable" : "🟢 Low crowd, great time to visit!"}` },
+    ];
+    document.getElementById("routeResult").innerHTML = `
+      <div class="route-card">
+        <h3 style="font-size:1rem;font-weight:700;margin-bottom:1rem;color:#1e1b4b;">🚶 Smart Route: ${from} → ${to}</h3>
+        ${steps.map((s,i) => `
+          <div class="route-step">
+            <div>
+              <div style="font-size:1.3rem;">${s.icon}</div>
+              ${i < steps.length-1 ? `<div class="route-line" style="margin:4px auto;"></div>` : ""}
+            </div>
+            <div style="font-size:0.88rem;color:#374151;">${s.text}</div>
+          </div>`).join("")}
+        <div style="margin-top:1rem;padding:10px;background:#f0f4ff;border-radius:10px;font-size:0.82rem;color:#4f46e5;font-weight:600;">
+          💡 Tip: Avoid visiting between 12–4 PM on weekends. Early morning gives the best experience with minimal crowd.
+        </div>
+      </div>`;
+  }
+
+  // ── AI ASSISTANT ──
+  const AI_RESPONSES = {
+    "3 hours":    "Based on current crowd data:\n✅ Qutub Minar (🟢 Low) — 45 min\n✅ Kodaikanal Viewpoint (🟢 Low) — 1 hr\n✅ Elliot's Beach (🟢 Low) — 30 min\n⏰ Best window: 8–11 AM today",
+    "evening":    "🌆 Best evening spots right now:\n✅ Elliot's Beach — 🟢 Low crowd, beautiful sunset\n✅ Besant Nagar — 🟢 Peaceful walk\n⚠️ Avoid Marina Beach — 🔴 Very crowded 5–8 PM",
+    "morning":    "🌅 Best morning spots:\n✅ Meenakshi Temple — 🟢 Low crowd before 8 AM\n✅ Rameswaram — 🟢 Peaceful all morning\n✅ Kodaikanal — 🟢 Misty & beautiful",
+    "beach":      "🏖️ Beach recommendations:\n✅ Elliot's Beach — 🟢 Low crowd, clean\n✅ Besant Nagar Beach — 🟢 Quiet & scenic\n⚠️ Marina Beach — 🔴 Very crowded today",
+    "temple":     "🛕 Temple recommendations:\n✅ Rameswaram — 🟢 Peaceful, visit anytime\n✅ Thiruparankundram — 🟢 Less crowded\n⚠️ Meenakshi Temple — 🔴 Very crowded, go before 8 AM",
+    "crowd":      "📊 Current crowd summary:\n🔴 High: Marina Beach, Meenakshi Temple, Golden Temple\n🟡 Medium: Taj Mahal, Gateway of India, Ooty\n🟢 Low: Kodaikanal, Rameswaram, Qutub Minar",
+    "default":    "🤖 Based on current crowd & weather data, I recommend:\n✅ Kodaikanal — 🟢 Low crowd + 🌤️ Good weather\n✅ Rameswaram — 🟢 Peaceful + 🌅 Beautiful\n✅ Qutub Minar — 🟢 Less crowded today\n\nWould you like more specific recommendations?"
+  };
+
+  function sendAI() {
+    const input = document.getElementById("aiInput");
+    const msg   = input.value.trim();
+    if (!msg) return;
+    const chat  = document.getElementById("aiChat");
+    chat.innerHTML += `<div class="ai-msg user">👤 ${msg}</div>`;
+    input.value = "";
+    setTimeout(() => {
+      const key = Object.keys(AI_RESPONSES).find(k => msg.toLowerCase().includes(k)) || "default";
+      const reply = AI_RESPONSES[key].replace(/\n/g, "<br/>");
+      chat.innerHTML += `<div class="ai-msg bot">🤖 ${reply}</div>`;
+      chat.scrollTop = chat.scrollHeight;
+    }, 600);
+  }
+
+  // ── ESCAPE MODE ──
+  function activateEscape() {
+    const place = document.getElementById("escapePlace").value;
+    const pInfo = PLACES[place];
+    const alts  = ALTERNATIVES[place] || [{ name:"Nearby Park", dist:"2 km", time:"8 min", tip:"Quiet & peaceful" }];
+    const best  = alts[0];
+    document.getElementById("escapeResult").innerHTML = `
+      <div class="escape-card">
+        <h3>🆘 Crowd Escape Mode Activated!</h3>
+        <div class="escape-step"><div class="escape-num">1</div><div>📍 Current Location: <b>${pInfo?.name}</b> — <span style="color:#fca5a5;">🔴 ${pInfo?.level?.toUpperCase()} CROWD</span></div></div>
+        <div class="escape-step"><div class="escape-num">2</div><div>👥 Crowd Level: ~${pInfo?.visitors?.toLocaleString()||"3,000+"} visitors right now. ${pInfo?.advice}</div></div>
+        <div class="escape-step"><div class="escape-num">3</div><div>🗺️ Best Alternative: <b>${best.name}</b> — 🟢 Low Crowd, ${best.tip}</div></div>
+        <div class="escape-step"><div class="escape-num">4</div><div>🚗 Best Route: Head ${best.dist} via less-congested back roads. Avoid main entrance road.</div></div>
+        <div class="escape-step"><div class="escape-num">5</div><div>⏱️ Estimated Travel: ~${best.time} by auto/cab</div></div>
+        <div class="escape-step"><div class="escape-num">6</div><div>⏰ Best Visiting Time at ${best.name}: Early morning or after 6 PM for peaceful experience</div></div>
+        <div style="margin-top:1rem;background:rgba(255,255,255,0.15);border-radius:12px;padding:12px;font-size:0.85rem;">
+          💡 <b>Pro Tip:</b> Save ${pInfo?.name} for ${pInfo?.best||"early morning"} when crowd is minimal. Enjoy ${best.name} now!
+        </div>
+      </div>`;
+  }
+
+  // Init
   loadContacts();
+  loadAllCrowds();
+  loadHeatmap();
 </script>
 </body>
 </html>

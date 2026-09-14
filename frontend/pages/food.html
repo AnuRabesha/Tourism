@@ -5,6 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Food – TourEase</title>
   <link rel="stylesheet" href="/static/frontend/css/style.css"/>
+  <style>
+    body { background: linear-gradient(135deg, #fffbeb 0%, #fce7f3 50%, #f0e7ff 100%) fixed; }
+    .page-header { background: linear-gradient(135deg, #d97706, #f59e0b, #ef4444, #db2777); }
+    .card { border-top: 3px solid; border-image: linear-gradient(90deg,#f59e0b,#ef4444) 1; }
+    .card .icon, .card > div[style*="font-size:2rem"] { filter: drop-shadow(0 4px 8px rgba(245,158,11,0.45)); }
+    .btn-primary { background: linear-gradient(135deg,#f59e0b,#ef4444); border: none; }
+    .btn-outline { border-color: #d97706; color: #d97706; }
+    .result-box h3 { background: linear-gradient(90deg,#d97706,#ef4444); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .badge-low { background: linear-gradient(135deg,#d1fae5,#a7f3d0); color: #065f46; }
+    footer { background: linear-gradient(135deg,#1e1b4b,#4c1d95); }
+  </style>
 </head>
 <body>
 
@@ -33,6 +44,7 @@
   <div style="display:flex; gap:1rem; margin-bottom:1.5rem;">
     <button class="btn btn-primary" onclick="showTab('temple')">🛕 Temple Food</button>
     <button class="btn btn-outline" onclick="showTab('dishes')">🍛 Famous Dishes</button>
+    <button class="btn btn-outline" onclick="showTab('instant')">⚡ Instant Foods</button>
   </div>
 
   <!-- Temple Food -->
@@ -67,6 +79,28 @@
     <div id="dishesList"></div>
   </div>
 
+  <!-- Instant Foods -->
+  <div id="instantTab" style="display:none;">
+    <div class="form-card" style="margin:0 0 1.5rem;">
+      <div class="form-group">
+        <label>City</label>
+        <select id="instantCity">
+          <option value="">-- All Cities --</option>
+          <option>Chennai</option>
+          <option>Madurai</option>
+          <option>Coimbatore</option>
+          <option>Tiruvannamalai</option>
+          <option>Rameswaram</option>
+          <option>Ooty</option>
+          <option>Alleppey</option>
+          <option>Jaisalmer</option>
+        </select>
+      </div>
+      <button class="btn btn-primary" onclick="loadInstantFoods()">Get Instant Foods</button>
+    </div>
+    <div id="instantList"></div>
+  </div>
+
 </div>
 
 <footer>© 2025 TourEase</footer>
@@ -79,6 +113,7 @@
   function showTab(tab) {
     document.getElementById("templeTab").style.display = tab === "temple" ? "block" : "none";
     document.getElementById("dishesTab").style.display = tab === "dishes" ? "block" : "none";
+    document.getElementById("instantTab").style.display = tab === "instant" ? "block" : "none";
   }
 
   async function loadTemples() {
@@ -93,12 +128,21 @@
     }
     if (!data.length) { list.innerHTML = `<div class="alert alert-info">No temples found.</div>`; return; }
     list.innerHTML = data.map(t => `
-      <div class="card">
-        <div class="icon">🛕</div>
-        <h3>${t.name}</h3>
-        <p>${t.location}</p>
-        <p style="margin-top:6px; font-size:0.8rem; color:#888;">⏰ ${t.timings}</p>
-        <span class="badge badge-low" style="margin-top:8px;">FREE</span>
+      <div class="card" style="text-align:left; padding:1.2rem;">
+        <div style="font-size:2rem; text-align:center;">${t.religion === 'Hindu' ? '🛕' : t.religion === 'Muslim' ? '🕌' : '⛪'}</div>
+        <h3 style="margin:8px 0 4px; font-size:0.95rem;">${t.name}</h3>
+        <p style="font-size:0.8rem; color:#666;">📍 ${t.location}</p>
+        <p style="font-size:0.78rem; color:#888; margin-top:4px;">⏰ Open: ${t.timings}</p>
+        ${t.food_timings ? `
+        <div style="margin-top:10px; border-top:1px solid #eee; padding-top:8px;">
+          <p style="font-size:0.8rem; font-weight:700; color:var(--primary); margin-bottom:6px;">🍽️ Food Timings:</p>
+          ${t.food_timings.map(f => `
+            <div style="background:#f8f9fa; border-radius:6px; padding:6px 8px; margin-bottom:4px; font-size:0.78rem;">
+              <b>${f.meal}</b>: ${f.time}<br/>
+              <span style="color:#666;">${f.items}</span>
+            </div>`).join("")}
+        </div>` : `<p style="font-size:0.78rem; color:#999; margin-top:8px;">ℹ️ Confirm timings locally</p>`}
+        <span class="badge badge-low" style="margin-top:8px; display:inline-block;">FREE ${t.verified ? '✅' : ''}</span>
       </div>
     `).join("");
   }
@@ -128,6 +172,31 @@
           <h3>📍 ${s}</h3>
           <div style="display:flex; flex-wrap:wrap; gap:8px; margin-top:10px;">
             ${dishes.map(d => `<span class="badge badge-medium">${d}</span>`).join("")}
+          </div>
+        </div>`).join("");
+    }
+  }
+
+  async function loadInstantFoods() {
+    const city = document.getElementById("instantCity").value;
+    const url = city ? `/food/instant-foods?city=${encodeURIComponent(city)}` : "/food/instant-foods";
+    const data = await api.get(url);
+    const list = document.getElementById("instantList");
+    if (data.error) { list.innerHTML = `<div class="alert alert-error">${data.error}</div>`; return; }
+    if (city && data.instant_foods) {
+      list.innerHTML = `
+        <div class="result-box">
+          <h3>⚡ Instant Foods in ${data.city}</h3>
+          <div style="display:flex; flex-wrap:wrap; gap:8px; margin-top:1rem;">
+            ${data.instant_foods.map(f => `<span class="badge badge-medium" style="font-size:1rem; padding:8px 16px;">🍽️ ${f}</span>`).join("")}
+          </div>
+        </div>`;
+    } else {
+      list.innerHTML = Object.entries(data).map(([c, foods]) => `
+        <div class="result-box" style="margin-bottom:1rem;">
+          <h3>📍 ${c}</h3>
+          <div style="display:flex; flex-wrap:wrap; gap:8px; margin-top:8px;">
+            ${foods.map(f => `<span class="badge badge-low">🍽️ ${f}</span>`).join("")}
           </div>
         </div>`).join("");
     }

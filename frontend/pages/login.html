@@ -580,22 +580,17 @@
         body: JSON.stringify({ mobile, email, password }),
       });
       const data = await res.json();
-
       if (res.ok && data.success) {
-        showAlert("Login Successful! Redirecting...", "success");
         sessionStorage.setItem("tourease_user", JSON.stringify({ email, mobile, name: data.name || email }));
+        showAlert("Login Successful! Redirecting...", "success");
         setTimeout(() => { window.location.href = "/"; }, 1200);
       } else {
-        showAlert(data.error || "Invalid credentials. Please try again.", "error");
-        loginBtn.disabled     = false;
-        spinner.style.display = "none";
-        btnText.textContent   = "🚀 Sign In";
+        showAlert(data.error || "Invalid credentials.", "error");
+        loginBtn.disabled = false; spinner.style.display = "none"; btnText.textContent = "🚀 Sign In";
       }
     } catch (err) {
-      showAlert("Cannot connect to server. Make sure the backend is running.", "error");
-      loginBtn.disabled     = false;
-      spinner.style.display = "none";
-      btnText.textContent   = "🚀 Sign In";
+      showAlert("Cannot connect to server.", "error");
+      loginBtn.disabled = false; spinner.style.display = "none"; btnText.textContent = "🚀 Sign In";
     }
   });
 </script>
