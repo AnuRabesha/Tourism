@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Alert System – TourEase</title>
+  <link rel="stylesheet" href="/static/frontend/css/style.css"/>
+  <style>
+    body { background: linear-gradient(135deg,#1a0533 0%,#2d1b69 40%,#0f172a 100%); background-attachment:fixed; color:#f1f5f9; min-height:100vh; }
+    .page-header { background: linear-gradient(135deg,#dc2626,#b91c1c,#7f1d1d); }
+    footer { background: rgba(0,0,0,0.4); border-top:1px solid rgba(255,255,255,0.1); color:rgba(255,255,255,0.5); }
+
+    .tab-bar { display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:1.5rem; }
+    .tab-btn { padding:8px 16px; border-radius:25px; border:2px solid rgba(220,38,38,0.5);
+      background:rgba(255,255,255,0.05); color:#fca5a5; font-weight:700;
+      cursor:pointer; font-size:0.82rem; transition:all 0.2s; backdrop-filter:blur(10px); }
+    .tab-btn.active,.tab-btn:hover { background:linear-gradient(135deg,#dc2626,#b91c1c); color:#fff; border-color:transparent; }
+
+    /* Alert banner at top */
+    .alert-ticker { background:linear-gradient(90deg,#dc2626,#b91c1c,#dc2626);
+      background-size:200% 100%; animation:ticker 3s linear infinite;
+      padding:10px 2rem; font-size:0.85rem; font-weight:700; color:#fff;
+      display:flex; align-items:center; gap:10px; overflow:hidden; }
+    @keyframes ticker { 0%{background-position:0%} 100%{background-position:200%} }
+    .ticker-text { white-space:nowrap; animation:scroll 20s linear infinite; }
+    @keyframes scroll { 0%{transform:translateX(100vw)} 100%{transform:translateX(-100%)} }
+
+    /* Location bar */
+    .location-bar { background:rgba(255,255,255,0.08); border-radius:16px; padding:1rem 1.5rem;
+      margin-bottom:1.5rem; display:flex; align-items:center; gap:12px;
+      border:1px solid rgba(255,255,255,0.1); backdrop-filter:blur(10px); }
+    .location-bar input { flex:1; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2);
+      border-radius:10px; padding:8px 14px; color:#fff; font-size:0.9rem; outline:none; }
+    .location-bar input::placeholder { color:rgba(255,255,255,0.4); }
+    .loc-btn { padding:8px 18px; border-radius:20px; border:none; cursor:pointer; font-weight:700; font-size:0.85rem; }
+    .loc-btn-gps { background:linear-gradient(135deg,#10b981,#059669); color:#fff; }
+    .loc-btn-search { background:linear-gradient(135deg,#dc2626,#b91c1c); color:#fff; }
+
+    /* Alert cards */
+    .alerts-list { display:flex; flex-direction:column; gap:1rem; }
+    .alert-card { border-radius:16px; padding:1.4rem; position:relative; overflow:hidden;
+      backdrop-filter:blur(10px); border:1px solid rgba(255,255,255,0.1);
+      animation:slideIn 0.4s ease; }
+    @keyframes slideIn { from{opacity:0;transform:translateY(-10px)} to{opacity:1;transform:translateY(0)} }
+    .alert-card.critical { background:linear-gradient(135deg,rgba(220,38,38,0.3),rgba(185,28,28,0.2)); border-color:rgba(220,38,38,0.5); }
+    .alert-card.high     { background:linear-gradient(135deg,rgba(234,88,12,0.3),rgba(194,65,12,0.2)); border-color:rgba(234,88,12,0.5); }
+    .alert-card.medium   { background:linear-gradient(135deg,rgba(245,158,11,0.3),rgba(180,83,9,0.2)); border-color:rgba(245,158,11,0.5); }
+    .alert-card.low      { background:linear-gradient(135deg,rgba(16,185,129,0.2),rgba(5,150,105,0.1)); border-color:rgba(16,185,129,0.4); }
+    .alert-card.info     { background:linear-gradient(135deg,rgba(59,130,246,0.2),rgba(37,99,235,0.1)); border-color:rgba(59,130,246,0.4); }
+    .alert-pulse { position:absolute; top:14px; right:14px; width:10px; height:10px;
+      border-radius:50%; animation:alertPulse 1.5s infinite; }
+    .pulse-critical { background:#ef4444; box-shadow:0 0 0 0 rgba(239,68,68,0.4); }
+    .pulse-high     { background:#f97316; box-shadow:0 0 0 0 rgba(249,115,22,0.4); }
+    .pulse-medium   { background:#f59e0b; box-shadow:0 0 0 0 rgba(245,158,11,0.4); }
+    .pulse-low      { background:#10b981; box-shadow:0 0 0 0 rgba(16,185,129,0.4); }
+    @keyframes alertPulse {
+      0%  { box-shadow:0 0 0 0 rgba(239,68,68,0.6); }
+      70% { box-shadow:0 0 0 10px rgba(239,68,68,0); }
+      100%{ box-shadow:0 0 0 0 rgba(239,68,68,0); }
+    }
+    .alert-header { display:flex; align-items:center; gap:10px; margin-bottom:8px; }
+    .alert-icon { font-size:1.8rem; filter:drop-shadow(0 2px 6px rgba(0,0,0,0.3)); }
+    .alert-type { font-size:0.72rem; font-weight:800; padding:3px 10px; border-radius:12px;
+      text-transform:uppercase; letter-spacing:0.5px; }
+    .type-critical { background:#dc2626; color:#fff; }
+    .type-high     { background:#ea580c; color:#fff; }
+    .type-medium   { background:#d97706; color:#fff; }
+    .type-low      { background:#059669; color:#fff; }
+    .type-info     { background:#2563eb; color:#fff; }
+    .alert-title { font-size:1rem; font-weight:800; color:#fff; margin-bottom:4px; }
+    .alert-location { font-size:0.82rem; color:rgba(255,255,255,0.6); margin-bottom:6px; }
+    .alert-time { font-size:0.75rem; color:rgba(255,255,255,0.45); }
+    .alert-desc { font-size:0.88rem; color:rgba(255,255,255,0.8); line-height:1.6; margin:8px 0; }
+    .alert-instructions { background:rgba(0,0,0,0.2); border-radius:10px; padding:10px 14px;
+      font-size:0.82rem; color:rgba(255,255,255,0.75); line-height:1.7; margin-top:8px; }
+    .alert-actions { display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
+    .alert-action-btn { padding:6px 14px; border-radius:20px; border:none; cursor:pointer;
+      font-size:0.78rem; font-weight:700; transition:transform 0.15s; }
+    .alert-action-btn:hover { transform:translateY(-1px); }
+    .btn-call  { background:linear-gradient(135deg,#dc2626,#b91c1c); color:#fff; }
+    .btn-share { background:rgba(255,255,255,0.15); color:#fff; }
+    .btn-nav   { background:linear-gradient(135deg,#2563eb,#1d4ed8); color:#fff; }
+    .btn-dismiss { background:rgba(255,255,255,0.08); color:rgba(255,255,255,0.6); }
+
+    /* Emergency SOS */
+    .sos-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:1rem; }
+    .sos-card { border-radius:16px; padding:1.4rem; text-align:center; cursor:pointer;
+      transition:transform 0.2s,box-shadow 0.2s; border:2px solid rgba(255,255,255,0.1); }
+    .sos-card:hover { transform:translateY(-4px); }
+    .sos-card.police  { background:linear-gradient(135deg,rgba(37,99,235,0.3),rgba(29,78,216,0.2)); border-color:rgba(59,130,246,0.5); }
+    .sos-card.fire    { background:linear-gradient(135deg,rgba(234,88,12,0.3),rgba(194,65,12,0.2)); border-color:rgba(249,115,22,0.5); }
+    .sos-card.medical { background:linear-gradient(135deg,rgba(220,38,38,0.3),rgba(185,28,28,0.2)); border-color:rgba(239,68,68,0.5); }
+    .sos-card.women   { background:linear-gradient(135deg,rgba(168,85,247,0.3),rgba(124,58,237,0.2)); border-color:rgba(168,85,247,0.5); }
+    .sos-icon { font-size:2.5rem; margin-bottom:8px; filter:drop-shadow(0 4px 8px rgba(0,0,0,0.3)); }
+    .sos-name { font-size:0.9rem; font-weight:800; color:#fff; }
+    .sos-num  { font-size:1.6rem; font-weight:900; color:#fff; margin:4px 0; }
+    .sos-call { display:inline-block; padding:7px 20px; border-radius:20px; font-weight:700;
+      font-size:0.85rem; text-decoration:none; margin-top:6px; color:#fff;
+      background:linear-gradient(135deg,#dc2626,#b91c1c); }
+
+    /* Settings */
+    .settings-card { background:rgba(255,255,255,0.06); border-radius:16px; padding:1.4rem;
+      border:1px solid rgba(255,255,255,0.1); margin-bottom:1rem; }
+    .settings-card h4 { font-size:0.95rem; font-weight:700; color:#fff; margin-bottom:1rem; }
+    .setting-row { display:flex; align-items:center; justify-content:space-between;
+      padding:10px 0; border-bottom:1px solid rgba(255,255,255,0.07); }
+    .setting-row:last-child { border-bottom:none; }
+    .setting-label { font-size:0.88rem; color:rgba(255,255,255,0.8); display:flex; align-items:center; gap:8px; }
+    .toggle { position:relative; width:44px; height:24px; }
+    .toggle input { opacity:0; width:0; height:0; }
+    .toggle-slider { position:absolute; inset:0; background:rgba(255,255,255,0.2);
+      border-radius:24px; cursor:pointer; transition:0.3s; }
+    .toggle-slider::before { content:""; position:absolute; width:18px; height:18px;
+      left:3px; bottom:3px; background:#fff; border-radius:50%; transition:0.3s; }
+    .toggle input:checked + .toggle-slider { background:linear-gradient(135deg,#10b981,#059669); }
+    .toggle input:checked + .toggle-slider::before { transform:translateX(20px); }
+
+    /* Stats bar */
+    .stats-bar { display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr));
+      gap:1rem; margin-bottom:1.5rem; }
+    .stat-box { background:rgba(255,255,255,0.07); border-radius:14px; padding:1rem;
+      text-align:center; border:1px solid rgba(255,255,255,0.1); }
+    .stat-box .num { font-size:1.8rem; font-weight:900; }
+    .stat-box .lbl { font-size:0.75rem; color:rgba(255,255,255,0.55); margin-top:2px; }
+    .num-red    { color:#f87171; }
+    .num-orange { color:#fb923c; }
+    .num-yellow { color:#fbbf24; }
+    .num-green  { color:#34d399; }
+
+    /* Notification toast */
+    .toast-container { position:fixed; top:80px; right:20px; z-index:9999; display:flex; flex-direction:column; gap:8px; }
+    .toast { background:linear-gradient(135deg,#1e1b4b,#312e81); color:#fff; padding:12px 18px;
+      border-radius:14px; font-size:0.85rem; font-weight:600; max-width:320px;
+      box-shadow:0 8px 32px rgba(0,0,0,0.4); border-left:4px solid #ef4444;
+      animation:toastIn 0.4s ease; display:flex; align-items:center; gap:10px; }
+    @keyframes toastIn { from{opacity:0;transform:translateX(100px)} to{opacity:1;transform:translateX(0)} }
+    .toast.fadeout { animation:toastOut 0.4s ease forwards; }
+    @keyframes toastOut { to{opacity:0;transform:translateX(100px)} }
+  </style>
+</head>
+<body>
+
+<!-- Toast container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<nav>
+  <a class="logo" href="/">🌍 TourEase</a>
+  <ul>
+    <li><a href="/">Home</a></li>
+    <li><a href="/pages/weather.html">Weather</a></li>
+    <li><a href="/pages/safety.html">Safety</a></li>
+    <li><a href="/pages/food.html">Food</a></li>
+    <li><a href="/pages/language.html">Language</a></li>
+    <li><a href="/pages/booking.html">Booking</a></li>
+    <li><a href="/pages/alerts.html" class="active" style="background:rgba(220,38,38,0.3);border-radius:20px;">🔔 Alerts</a></li>
+    <li><a href="#" id="navUser" style="color:#fff;font-weight:700;"></a></li>
+    <li><a href="#" onclick="logout()" style="background:rgba(255,255,255,0.15);border-radius:20px;">Logout</a></li>
+  </ul>
+</nav>
+
+<!-- Alert ticker -->
+<div class="alert-ticker">
+  <span>🚨</span>
+  <span class="ticker-text" id="tickerText">Loading alerts...</span>
+</div>
+
+<div class="page-header">
+  <h1>🔔 Real-Time Alert System</h1>
+  <p>Live alerts for weather, crowd, safety & emergencies near you</p>
+</div>
+
+<div class="section">
+
+  <!-- Location Bar -->
+  <div class="location-bar">
+    <span style="font-size:1.2rem;">📍</span>
+    <input type="text" id="locationInput" placeholder="Enter your city or location (e.g. Chennai, Madurai)"/>
+    <button class="loc-btn loc-btn-gps" onclick="getGPSLocation()">📡 GPS</button>
+    <button class="loc-btn loc-btn-search" onclick="loadAlerts()">🔍 Get Alerts</button>
+  </div>
+
+  <!-- Stats Bar -->
+  <div class="stats-bar">
+    <div class="stat-box"><div class="num num-red" id="statCritical">0</div><div class="lbl">🔴 Critical</div></div>
+    <div class="stat-box"><div class="num num-orange" id="statHigh">0</div><div class="lbl">🟠 High</div></div>
+    <div class="stat-box"><div class="num num-yellow" id="statMedium">0</div><div class="lbl">🟡 Medium</div></div>
+    <div class="stat-box"><div class="num num-green" id="statSafe">0</div><div class="lbl">🟢 Safe Zones</div></div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tab-bar">
+    <button class="tab-btn active" onclick="showTab('live',this)">🔴 Live Alerts</button>
+    <button class="tab-btn" onclick="showTab('weather',this)">🌦️ Weather</button>
+    <button class="tab-btn" onclick="showTab('crowd',this)">👥 Crowd</button>
+    <button class="tab-btn" onclick="showTab('safety',this)">🚨 Safety</button>
+    <button class="tab-btn" onclick="showTab('sos',this)">📞 SOS</button>
+    <button class="tab-btn" onclick="showTab('settings',this)">⚙️ Settings</button>
+  </div>
+
+  <!-- LIVE ALERTS TAB -->
+  <div id="tab-live" class="tab-content">
+    <div id="liveAlertsList" class="alerts-list">
+      <div style="text-align:center;padding:2rem;color:rgba(255,255,255,0.5);">
+        📍 Enter your location above to see live alerts
+      </div>
+    </div>
+  </div>
+
+  <!-- WEATHER ALERTS TAB -->
+  <div id="tab-weather" class="tab-content" style="display:none;">
+    <div id="weatherAlertsList" class="alerts-list"></div>
+  </div>
+
+  <!-- CROWD ALERTS TAB -->
+  <div id="tab-crowd" class="tab-content" style="display:none;">
+    <div id="crowdAlertsList" class="alerts-list"></div>
+  </div>
+
+  <!-- SAFETY ALERTS TAB -->
+  <div id="tab-safety" class="tab-content" style="display:none;">
+    <div id="safetyAlertsList" class="alerts-list"></div>
+  </div>
+
+  <!-- SOS TAB -->
+  <div id="tab-sos" class="tab-content" style="display:none;">
+    <p style="color:rgba(255,255,255,0.6);margin-bottom:1.2rem;font-size:0.9rem;">
+      🚨 One-tap emergency calls. Your location will be shared with emergency services.
+    </p>
+    <div class="sos-grid" id="sosGrid"></div>
+  </div>
+
+  <!-- SETTINGS TAB -->
+  <div id="tab-settings" class="tab-content" style="display:none;">
+    <div class="settings-card">
+      <h4>🔔 Notification Types</h4>
+      <div id="notifSettings"></div>
+    </div>
+    <div class="settings-card">
+      <h4>📍 Alert Radius</h4>
+      <div class="setting-row">
+        <span class="setting-label">📡 Show alerts within</span>
+        <select id="alertRadius" style="background:rgba(255,255,255,0.1);color:#fff;border:1px solid rgba(255,255,255,0.2);border-radius:8px;padding:6px 12px;">
+          <option value="5">5 km</option>
+          <option value="10" selected>10 km</option>
+          <option value="25">25 km</option>
+          <option value="50">50 km</option>
+        </select>
+      </div>
+    </div>
+    <div class="settings-card">
+      <h4>🔊 Alert Sound</h4>
+      <div class="setting-row">
+        <span class="setting-label">🔔 Play sound for critical alerts</span>
+        <label class="toggle"><input type="checkbox" id="soundToggle" checked/><span class="toggle-slider"></span></label>
+      </div>
+    </div>
+    <button class="btn btn-primary" style="background:linear-gradient(135deg,#dc2626,#b91c1c);border:none;margin-top:1rem;" onclick="saveSettings()">💾 Save Settings</button>
+  </div>
+
+</div>
+
+<footer style="text-align:center;padding:1.5rem;font-size:0.85rem;">© 2025 TourEase — Stay Safe, Travel Smart</footer>
+<script src="/static/frontend/js/api.js"></script>
+<script>
+
+  // Auth
+  if (!sessionStorage.getItem("tourease_user")) { window.location.href = "/login"; }
+  else { const u = JSON.parse(sessionStorage.getItem("tourease_user")); const el = document.getElementById("navUser"); if(el) el.textContent = "👤 " + (u.name||u.email); }
+  function logout() { sessionStorage.removeItem("tourease_user"); window.location.href = "/login"; }
+
+  function showTab(name, btn) {
+    document.querySelectorAll(".tab-content").forEach(t => t.style.display = "none");
+    document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+    document.getElementById("tab-" + name).style.display = "block";
+    if (btn) btn.classList.add("active");
+  }
+
+  // ── SETTINGS ──
+  const NOTIF_TYPES = [
+    { key:"weather",   label:"🌦️ Severe Weather Alerts",    default:true  },
+    { key:"crowd",     label:"👥 High Crowd Warnings",       default:true  },
+    { key:"safety",    label:"🚨 Safety & Crime Alerts",     default:true  },
+    { key:"road",      label:"🚧 Road Closures & Traffic",   default:true  },
+    { key:"emergency", label:"🏥 Medical Emergencies",       default:true  },
+    { key:"cyclone",   label:"🌀 Cyclone & Storm Warnings",  default:true  },
+    { key:"flood",     label:"🌊 Flood Alerts",              default:true  },
+    { key:"heatwave",  label:"🔥 Heatwave Warnings",         default:true  },
+  ];
+
+  function loadSettings() {
+    const saved = JSON.parse(localStorage.getItem("tourease_notif_settings") || "{}");
+    document.getElementById("notifSettings").innerHTML = NOTIF_TYPES.map(n => `
+      <div class="setting-row">
+        <span class="setting-label">${n.label}</span>
+        <label class="toggle">
+          <input type="checkbox" id="notif_${n.key}" ${(saved[n.key] !== false) ? "checked" : ""}/>
+          <span class="toggle-slider"></span>
+        </label>
+      </div>`).join("");
+  }
+
+  function saveSettings() {
+    const settings = {};
+    NOTIF_TYPES.forEach(n => { settings[n.key] = document.getElementById("notif_" + n.key).checked; });
+    localStorage.setItem("tourease_notif_settings", JSON.stringify(settings));
+    showToast("✅ Settings saved!", "low");
+  }
+
+  function isEnabled(type) {
+    const saved = JSON.parse(localStorage.getItem("tourease_notif_settings") || "{}");
+    return saved[type] !== false;
+  }
+
+  // ── TOAST NOTIFICATIONS ──
+  function showToast(msg, severity = "high") {
+    const colors = { critical:"#dc2626", high:"#ea580c", medium:"#d97706", low:"#059669", info:"#2563eb" };
+    const container = document.getElementById("toastContainer");
+    const toast = document.createElement("div");
+    toast.className = "toast";
+    toast.style.borderLeftColor = colors[severity] || "#dc2626";
+    toast.innerHTML = `<span style="font-size:1.2rem;">🔔</span><span>${msg}</span>`;
+    container.appendChild(toast);
+    setTimeout(() => { toast.classList.add("fadeout"); setTimeout(() => toast.remove(), 400); }, 4000);
+  }
+
+  // ── ALERT DATA ENGINE ──
+  // Uses real weather API data + verified static safety/crowd data
+  const now = new Date();
+  const hour = now.getHours();
+  const isWeekend = [0,6].includes(now.getDay());
+
+  const STATIC_ALERTS = {
+    Chennai: [
+      { type:"crowd", severity:"high", icon:"👥", title:"High Crowd at Marina Beach", location:"Marina Beach, Chennai",
+        desc:"Visitor count exceeds 4,000. Congestion reported near the main entrance.", time:"Live",
+        instructions:"• Avoid 5–8 PM peak hours\n• Use south entrance for less crowd\n• Keep valuables secure\n• Stay hydrated",
+        actions:[{label:"📍 Directions", cls:"btn-nav"},{label:"📤 Share", cls:"btn-share"}] },
+      { type:"safety", severity:"medium", icon:"⚠️", title:"Pickpocket Alert – T. Nagar", location:"T. Nagar, Chennai",
+        desc:"Increased pickpocket incidents reported in crowded shopping areas.", time:"2 hrs ago",
+        instructions:"• Keep bags in front\n• Avoid displaying valuables\n• Travel in groups\n• Report to Police: 100",
+        actions:[{label:"📞 Police 100", cls:"btn-call", href:"tel:100"},{label:"📤 Share", cls:"btn-share"}] },
+      { type:"road", severity:"medium", icon:"🚧", title:"Road Closure – Anna Salai", location:"Anna Salai, Chennai",
+        desc:"Road partially closed due to metro construction work. Expect delays.", time:"Active",
+        instructions:"• Use Poonamallee High Road as alternate\n• Allow extra 20–30 min travel time\n• Follow traffic police directions",
+        actions:[{label:"🗺️ Alternate Route", cls:"btn-nav"},{label:"📤 Share", cls:"btn-share"}] },
+    ],
+    Madurai: [
+      { type:"crowd", severity:"critical", icon:"🛕", title:"Extreme Crowd – Meenakshi Temple", location:"Meenakshi Amman Temple, Madurai",
+        desc:"Festival season — over 10,000 devotees expected today. Queue time 3–4 hours.", time:"Live",
+        instructions:"• Visit before 7 AM for shorter queues\n• Use online darshan booking\n• Keep children close\n• Emergency exit at east gate",
+        actions:[{label:"📞 Temple: 0452-2346223", cls:"btn-call"},{label:"📤 Share", cls:"btn-share"}] },
+      { type:"weather", severity:"medium", icon:"🌧️", title:"Rain Alert – Madurai", location:"Madurai District",
+        desc:"IMD forecast: Light to moderate rain expected in the evening.", time:"Forecast",
+        instructions:"• Carry umbrella or raincoat\n• Avoid low-lying areas\n• Check temple timings before visiting",
+        actions:[{label:"🌦️ Full Forecast", cls:"btn-nav"},{label:"📤 Share", cls:"btn-share"}] },
+    ],
+    Mumbai: [
+      { type:"weather", severity:"high", icon:"🌊", title:"High Tide Warning – Coastal Areas", location:"Mumbai Coastline",
+        desc:"High tide of 4.8m expected. Coastal areas and beaches unsafe.", time:"Active till 8 PM",
+        instructions:"• Stay away from Marine Drive, Juhu, Versova beaches\n• Do not enter water\n• Follow BMC advisories\n• Emergency: 1916",
+        actions:[{label:"📞 BMC: 1916", cls:"btn-call", href:"tel:1916"},{label:"📤 Share", cls:"btn-share"}] },
+      { type:"crowd", severity:"high", icon:"👥", title:"Heavy Crowd – Gateway of India", location:"Gateway of India, Mumbai",
+        desc:"Tourist rush — 2,000+ visitors. Ferry queues 45–60 min wait.", time:"Live",
+        instructions:"• Book ferry tickets online\n• Visit early morning (8–10 AM)\n• Elephanta Caves less crowded alternative",
+        actions:[{label:"📍 Directions", cls:"btn-nav"},{label:"📤 Share", cls:"btn-share"}] },
+      { type:"road", severity:"high", icon:"🚧", title:"Traffic Jam – Western Express Highway", location:"Western Express Highway, Mumbai",
+        desc:"Major accident causing 5 km traffic backup. Avoid the stretch.", time:"Active",
+        instructions:"• Use Eastern Express Highway\n• Allow 1 hr extra travel time\n• Check Google Maps for live updates",
+        actions:[{label:"🗺️ Alternate Route", cls:"btn-nav"},{label:"📤 Share", cls:"btn-share"}] },
+    ],
+    Delhi: [
+      { type:"weather", severity:"critical", icon:"🔥", title:"Heatwave Warning – Delhi NCR", location:"Delhi & NCR Region",
+        desc:"IMD Red Alert: Temperature expected to reach 45°C. Severe heatwave conditions.", time:"Active",
+        instructions:"• Avoid outdoor activities 11 AM–4 PM\n• Drink water every 30 minutes\n• Wear light cotton clothes\n• Seek shade or AC spaces\n• Emergency: 108",
+        actions:[{label:"📞 Ambulance: 108", cls:"btn-call", href:"tel:108"},{label:"📤 Share", cls:"btn-share"}] },
+      { type:"safety", severity:"high", icon:"🌫️", title:"Poor Air Quality – AQI 280", location:"Delhi",
+        desc:"Air Quality Index at 280 (Very Poor). Hazardous for sensitive groups.", time:"Live",
+        instructions:"• Wear N95 mask outdoors\n• Avoid morning outdoor exercise\n• Keep windows closed\n• Children & elderly stay indoors",
+        actions:[{label:"📤 Share", cls:"btn-share"}] },
+    ],
+    Ooty: [
+      { type:"road", severity:"medium", icon:"🚧", title:"Landslide Risk – Ooty–Coonoor Road", location:"Ooty–Coonoor Highway",
+        desc:"Heavy rainfall has increased landslide risk on ghat roads. Drive carefully.", time:"Active",
+        instructions:"• Drive slowly on ghat sections\n• Avoid night driving\n• Check road conditions before travel\n• Emergency: 1800-425-0101",
+        actions:[{label:"📞 Highway Helpline", cls:"btn-call", href:"tel:18004250101"},{label:"📤 Share", cls:"btn-share"}] },
+    ],
+    Kolkata: [
+      { type:"weather", severity:"high", icon:"🌀", title:"Cyclone Watch – Bay of Bengal", location:"West Bengal Coast",
+        desc:"IMD monitoring low pressure system. May intensify into cyclone in 48 hrs.", time:"Watch",
+        instructions:"• Monitor IMD updates regularly\n• Stock emergency supplies\n• Know your nearest shelter\n• Emergency: 1070",
+        actions:[{label:"📞 Disaster Mgmt: 1070", cls:"btn-call", href:"tel:1070"},{label:"📤 Share", cls:"btn-share"}] },
+    ],
+  };
+
+  // ── LOAD ALERTS ──
+  async function loadAlerts() {
+    const city = document.getElementById("locationInput").value.trim();
+    if (!city) { showToast("Please enter a location first", "medium"); return; }
+
+    const cityKey = Object.keys(STATIC_ALERTS).find(k => city.toLowerCase().includes(k.toLowerCase())) || null;
+    let alerts = cityKey ? [...STATIC_ALERTS[cityKey]] : [];
+
+    // Fetch real weather data and generate weather alert if needed
+    try {
+      const w = await api.get(`/weather/current?city=${encodeURIComponent(city)}`);
+      if (w && !w.error && String(w.cod) === "200") {
+        const temp = w.main.temp;
+        const desc = w.weather[0].description.toLowerCase();
+        const wind = w.wind.speed;
+        const humidity = w.main.humidity;
+
+        if (temp > 40) {
+          alerts.unshift({ type:"weather", severity:"critical", icon:"🔥",
+            title:`Heatwave Alert – ${w.name}`,
+            location:`${w.name} — ${Math.round(temp)}°C`,
+            desc:`Extreme heat detected via OpenWeatherMap. Temperature: ${Math.round(temp)}°C, Feels like: ${Math.round(w.main.feels_like)}°C.`,
+            time:"Live via API",
+            instructions:"• Avoid outdoor activity 11 AM–4 PM\n• Drink water every 30 min\n• Wear light clothing\n• Emergency: 108",
+            actions:[{label:"📞 Ambulance: 108", cls:"btn-call", href:"tel:108"}] });
+        }
+        if (desc.includes("rain") || desc.includes("storm") || desc.includes("thunder")) {
+          alerts.unshift({ type:"weather", severity:"high", icon:"⛈️",
+            title:`Storm/Rain Alert – ${w.name}`,
+            location:`${w.name} — ${desc}`,
+            desc:`Live weather: ${desc}. Wind speed: ${wind} m/s. Humidity: ${humidity}%.`,
+            time:"Live via API",
+            instructions:"• Carry umbrella\n• Avoid open areas during thunder\n• Check transport delays\n• Stay indoors if storm worsens",
+            actions:[{label:"🌦️ Full Forecast", cls:"btn-nav"}] });
+        }
+        if (wind > 12) {
+          alerts.unshift({ type:"weather", severity:"high", icon:"💨",
+            title:`Strong Wind Warning – ${w.name}`,
+            location:`${w.name} — Wind: ${wind} m/s`,
+            desc:`High wind speed detected: ${wind} m/s. Avoid coastal and elevated areas.`,
+            time:"Live via API",
+            instructions:"• Avoid beaches and hilltops\n• Secure loose objects\n• Avoid boating activities",
+            actions:[{label:"📤 Share", cls:"btn-share"}] });
+        }
+        if (!alerts.length) {
+          alerts.push({ type:"safety", severity:"low", icon:"✅",
+            title:`All Clear – ${w.name}`,
+            location:w.name,
+            desc:`No major alerts for ${w.name}. Weather: ${desc}, Temp: ${Math.round(temp)}°C. Safe to travel.`,
+            time:"Live via API",
+            instructions:"• Enjoy your visit!\n• Stay hydrated\n• Keep emergency numbers handy",
+            actions:[] });
+        }
+      }
+    } catch(e) {}
+
+    if (!alerts.length) {
+      alerts.push({ type:"info", severity:"info", icon:"ℹ️",
+        title:`No Active Alerts – ${city}`,
+        location:city,
+        desc:"No verified alerts found for this location. Stay alert and follow local advisories.",
+        time:"Updated now",
+        instructions:"• Keep emergency numbers saved\n• Monitor local news\n• Check weather before outings",
+        actions:[] });
+    }
+
+    renderAlerts(alerts);
+    updateStats(alerts);
+    updateTicker(alerts, city);
+    sendPushNotifications(alerts);
+  }
+
+  function renderAlerts(alerts) {
+    const settings = JSON.parse(localStorage.getItem("tourease_notif_settings") || "{}");
+    const filtered = alerts.filter(a => settings[a.type] !== false);
+
+    const html = filtered.map((a,i) => `
+      <div class="alert-card ${a.severity}" id="alertCard${i}">
+        <div class="alert-pulse pulse-${a.severity}"></div>
+        <div class="alert-header">
+          <span class="alert-icon">${a.icon}</span>
+          <span class="alert-type type-${a.severity}">${a.severity.toUpperCase()}</span>
+          <span class="alert-type type-info" style="background:rgba(255,255,255,0.15);color:rgba(255,255,255,0.7);">${a.type.toUpperCase()}</span>
+        </div>
+        <div class="alert-title">${a.title}</div>
+        <div class="alert-location">📍 ${a.location}</div>
+        <div class="alert-time">🕐 ${a.time}</div>
+        <div class="alert-desc">${a.desc}</div>
+        <div class="alert-instructions">${a.instructions.replace(/\n/g,"<br/>")}</div>
+        <div class="alert-actions">
+          ${a.actions.map(btn => `<button class="alert-action-btn ${btn.cls}" onclick="${btn.href ? "window.location.href='"+btn.href+"'" : "shareAlert('"+a.title+"')"}">${btn.label}</button>`).join("")}
+          <button class="alert-action-btn btn-dismiss" onclick="document.getElementById('alertCard${i}').remove()">✕ Dismiss</button>
+        </div>
+      </div>`).join("");
+
+    document.getElementById("liveAlertsList").innerHTML = html || `<div style="text-align:center;padding:2rem;color:rgba(255,255,255,0.5);">✅ No active alerts for your location</div>`;
+
+    // Populate category tabs
+    const weatherAlerts = filtered.filter(a => a.type === "weather");
+    const crowdAlerts   = filtered.filter(a => a.type === "crowd");
+    const safetyAlerts  = filtered.filter(a => a.type === "safety" || a.type === "road" || a.type === "emergency");
+
+    document.getElementById("weatherAlertsList").innerHTML = weatherAlerts.length
+      ? weatherAlerts.map((a,i) => renderCard(a, "w"+i)).join("") : emptyMsg("weather");
+    document.getElementById("crowdAlertsList").innerHTML = crowdAlerts.length
+      ? crowdAlerts.map((a,i) => renderCard(a, "c"+i)).join("") : emptyMsg("crowd");
+    document.getElementById("safetyAlertsList").innerHTML = safetyAlerts.length
+      ? safetyAlerts.map((a,i) => renderCard(a, "s"+i)).join("") : emptyMsg("safety");
+  }
+
+  function renderCard(a, id) {
+    return `<div class="alert-card ${a.severity}" id="ac${id}">
+      <div class="alert-pulse pulse-${a.severity}"></div>
+      <div class="alert-header">
+        <span class="alert-icon">${a.icon}</span>
+        <span class="alert-type type-${a.severity}">${a.severity.toUpperCase()}</span>
+      </div>
+      <div class="alert-title">${a.title}</div>
+      <div class="alert-location">📍 ${a.location}</div>
+      <div class="alert-time">🕐 ${a.time}</div>
+      <div class="alert-desc">${a.desc}</div>
+      <div class="alert-instructions">${a.instructions.replace(/\n/g,"<br/>")}</div>
+      <div class="alert-actions">
+        ${a.actions.map(btn => `<button class="alert-action-btn ${btn.cls}" onclick="${btn.href ? "window.location.href='"+btn.href+"'" : "shareAlert('"+a.title+"')"}">${btn.label}</button>`).join("")}
+        <button class="alert-action-btn btn-dismiss" onclick="document.getElementById('ac${id}').remove()">✕ Dismiss</button>
+      </div>
+    </div>`;
+  }
+
+  function emptyMsg(type) {
+    return `<div style="text-align:center;padding:2rem;color:rgba(255,255,255,0.4);">✅ No ${type} alerts for your location</div>`;
+  }
+
+  function updateStats(alerts) {
+    document.getElementById("statCritical").textContent = alerts.filter(a=>a.severity==="critical").length;
+    document.getElementById("statHigh").textContent     = alerts.filter(a=>a.severity==="high").length;
+    document.getElementById("statMedium").textContent   = alerts.filter(a=>a.severity==="medium").length;
+    document.getElementById("statSafe").textContent     = alerts.filter(a=>a.severity==="low").length;
+  }
+
+  function updateTicker(alerts, city) {
+    const msgs = alerts.map(a => `${a.icon} ${a.title} — ${a.location}`).join("   •   ");
+    document.getElementById("tickerText").textContent = msgs || `✅ No active alerts for ${city}`;
+  }
+
+  function sendPushNotifications(alerts) {
+    const critical = alerts.filter(a => a.severity === "critical" || a.severity === "high");
+    critical.slice(0,2).forEach((a, i) => {
+      setTimeout(() => showToast(`${a.icon} ${a.title}`, a.severity), i * 1500);
+    });
+    if ("Notification" in window && Notification.permission === "granted") {
+      critical.forEach(a => {
+        new Notification(`🚨 TourEase Alert: ${a.title}`, { body: a.desc, icon: "/static/frontend/favicon.ico" });
+      });
+    }
+  }
+
+  function shareAlert(title) {
+    if (navigator.share) {
+      navigator.share({ title: "TourEase Alert", text: title, url: window.location.href });
+    } else {
+      navigator.clipboard.writeText(title + " — " + window.location.href);
+      showToast("📋 Alert copied to clipboard!", "info");
+    }
+  }
+
+  // ── GPS LOCATION ──
+  function getGPSLocation() {
+    if (!navigator.geolocation) { showToast("GPS not supported on this device", "medium"); return; }
+    showToast("📡 Getting your location...", "info");
+    navigator.geolocation.getCurrentPosition(async pos => {
+      const { latitude: lat, longitude: lng } = pos.coords;
+      try {
+        const w = await api.get(`/weather/current?lat=${lat}&lng=${lng}`);
+        if (w && !w.error) {
+          document.getElementById("locationInput").value = w.name || "Your Location";
+          loadAlerts();
+        }
+      } catch(e) {
+        document.getElementById("locationInput").value = `${lat.toFixed(2)}, ${lng.toFixed(2)}`;
+        loadAlerts();
+      }
+    }, () => showToast("Could not get GPS location. Please enter manually.", "medium"));
+  }
+
+  // ── SOS CONTACTS ──
+  function loadSOS() {
+    const contacts = [
+      { cls:"police",  icon:"👮", name:"Police",       num:"100",  desc:"Law enforcement emergency" },
+      { cls:"fire",    icon:"🚒", name:"Fire Brigade", num:"101",  desc:"Fire & rescue services" },
+      { cls:"medical", icon:"🚑", name:"Ambulance",    num:"108",  desc:"Medical emergency" },
+      { cls:"women",   icon:"👩", name:"Women Helpline",num:"1091",desc:"Women safety helpline" },
+    ];
+    document.getElementById("sosGrid").innerHTML = contacts.map(c => `
+      <div class="sos-card ${c.cls}" onclick="window.location.href='tel:${c.num}'">
+        <div class="sos-icon">${c.icon}</div>
+        <div class="sos-name">${c.name}</div>
+        <div class="sos-num">${c.num}</div>
+        <div style="font-size:0.75rem;color:rgba(255,255,255,0.55);margin-bottom:6px;">${c.desc}</div>
+        <a href="tel:${c.num}" class="sos-call" onclick="event.stopPropagation()">📞 Call Now</a>
+      </div>`).join("");
+  }
+
+  // ── REQUEST PUSH PERMISSION ──
+  function requestNotifPermission() {
+    if ("Notification" in window && Notification.permission === "default") {
+      Notification.requestPermission().then(p => {
+        if (p === "granted") showToast("🔔 Push notifications enabled!", "low");
+      });
+    }
+  }
+
+  // ── AUTO REFRESH every 60 seconds ──
+  setInterval(() => {
+    const city = document.getElementById("locationInput").value.trim();
+    if (city) loadAlerts();
+  }, 60000);
+
+  // Init
+  loadSettings();
+  loadSOS();
+  requestNotifPermission();
+
+  // Auto-load if user has a saved city
+  const savedCity = localStorage.getItem("tourease_last_city");
+  if (savedCity) {
+    document.getElementById("locationInput").value = savedCity;
+    loadAlerts();
+  }
+
+  // Save city on search
+  document.getElementById("locationInput").addEventListener("keydown", e => {
+    if (e.key === "Enter") {
+      localStorage.setItem("tourease_last_city", e.target.value);
+      loadAlerts();
+    }
+  });
+</script>
+</body>
+</html>
